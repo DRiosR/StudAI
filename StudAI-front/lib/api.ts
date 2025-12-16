@@ -2,7 +2,11 @@ import axios from "axios";
 import { GeneratedVideoResult } from "@/models/video_output";
 import { Input } from "@/models/input";
 
-const ENDPOINT = "http://127.0.0.1:8000/generate/video";
+// Usar variable de entorno para el endpoint del backend
+// En desarrollo: http://127.0.0.1:8000
+// En produccion: URL de tu servicio en Render (ej: https://studai.onrender.com)
+const ENDPOINT = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+const API_ENDPOINT = `${ENDPOINT}/generate/video`;
 
 async function generateVideo(input: Input): Promise<GeneratedVideoResult> {
   if (!input.files || input.files.length === 0) {
@@ -17,7 +21,7 @@ async function generateVideo(input: Input): Promise<GeneratedVideoResult> {
 
   try {
     const response = await axios.post<GeneratedVideoResult>(
-      ENDPOINT,
+      API_ENDPOINT,
       formData,
       {
         // Let axios/browser set proper multipart boundary headers automatically

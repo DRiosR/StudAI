@@ -24,9 +24,24 @@ from fastapi.responses import StreamingResponse
 from pathlib import Path
 app = FastAPI()
 
+# Configurar CORS: permite requests desde frontend local y produccion
+# En produccion, agrega tu dominio de Render o Vercel aqui
+allowed_origins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    # Agrega tu dominio de produccion aqui cuando despliegues:
+    # "https://tu-frontend.onrender.com",
+    # "https://tu-frontend.vercel.app",
+]
+
+# Permitir todos los origenes en desarrollo (solo para testing)
+# En produccion, especifica solo los dominios permitidos
+if os.getenv("ENVIRONMENT") != "production":
+    allowed_origins.append("*")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=allowed_origins if "*" not in allowed_origins else ["*"],
     allow_methods=["*"],
     allow_headers=["*"],
     allow_credentials=False,  # set True only if you use cookies/auth
