@@ -1,0 +1,13 @@
+[EN] Oh shit, I almost gave away my whole damn storage live on stream. I’m talking broadcasting, vibing, and without even noticing I dropped an API key in the chat. And of course—boom—chaos unleashed. Random people jumping in, files flying all over. Learned that lesson in like five minutes and a couple million views.
+
+Listen. There are two worlds in the cloud. Keys? Those fuckers are like physical keys. Simple, direct… but if they leak? Kaboom, everything’s compromised. RBAC is a whole different beast. You’re giving roles, not keys. Identities, permissions, fine-grained control. Auto-rotation, clean-ass audit logs. In Azure you’ve got Managed Identities. The service authenticates itself—no secret handling. Magic-level shit.
+
+Quick tips between stream and chaos-memes:
+– Don’t drop your damn keys in chat.
+– Use roles and least privilege like your life depends on it.
+– Whatever secrets you must keep, toss them in Key Vault.
+– Check access the same way you check weird donation messages.
+
+Plot twist: the “hacker” viewer who jumped in? Dude actually helped me set up RBAC properly. Now I’m safer and more viral.
+
+If you play with keys, you’re basically leaving the door wide the fuck open… for everyone.
