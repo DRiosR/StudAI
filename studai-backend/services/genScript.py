@@ -206,13 +206,14 @@ def generate_short_video_script(pdf_text: str, client: AzureOpenAI, deployment: 
     # Estas instrucciones le dicen al modelo de IA como debe generar el guion
     # El modelo usa estas instrucciones como "reglas" para crear el contenido
     user_instructions = (
-        "Write a short, funny, and engaging script for a short-form video (40–75 seconds). "
-        "Use natural spoken rhythm with short sentences and line breaks for pacing. "
+        "Write a formal, educational, and informative script for a short-form video (40–75 seconds). "
+        "Use clear and professional language with well-structured sentences. "
         "Languague of the script should match the source material language or user preference. "
-        "The tone should be clever, informative, and a little dramatic — similar to an AITA or storytelling TikTok. "
+        "The tone should be academic, formal, and educational — similar to a university lecture or educational documentary. "
         "Aim for 120–225 words (around 3 words per second). "
-        "Start with a strong hook in the first 3–5 seconds, include one surprising or humorous twist, "
-        "and end with a one-line mic-drop style conclusion. "
+        "Start with a clear introduction of the topic, present the information in an organized manner, "
+        "and end with a concise summary or conclusion. "
+        "Use formal vocabulary and avoid colloquialisms, slang, or casual expressions. "
         "Do NOT include any formatting, labels, bullet points, or stage directions — just pure script text as if spoken aloud."
     )
 
@@ -244,7 +245,7 @@ def generate_short_video_script(pdf_text: str, client: AzureOpenAI, deployment: 
     messages = [
         {
             "role": "system", 
-            "content": "You are a witty and concise short-form scriptwriter who only outputs spoken text — no notes or structure. If I have provided no soruce material, use the information from user_additional_input to guide the script."
+            "content": "You are a formal and educational scriptwriter who creates academic and professional content. You only output spoken text in a formal tone — no notes or structure. If I have provided no source material, use the information from user_additional_input to guide the script."
         },
         {
             "role": "user", 

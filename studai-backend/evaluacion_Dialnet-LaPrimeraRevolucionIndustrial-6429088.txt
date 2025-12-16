@@ -1,0 +1,48 @@
+Evaluacion del guion generado de: C:\Users\danie\OneDrive\Escritorio\7_semestre\IA\StudAI\studai-backend\test_files\Dialnet-LaPrimeraRevolucionIndustrial-6429088.pdf
+================================================================================
+
+Guion generado:
+[SP]: Examinaré la Primera Revolución Industrial como un proceso histórico caracterizado por tres rasgos definitorios: ocurrir en un lapso relativamente breve, transformar de manera profunda estructuras económicas y sociales, y constituir un punto de no retorno respecto al orden anterior. Este fenómeno, circunscrito esencialmente a la Gran Bretaña del siglo XVIII, emergió de la convergencia de transformaciones agrarias que liberaron mano de obra, de una elite que toleró y financió la iniciativa comercial, y de un entorno económico proclive a la innovación. Su secuencia técnica fue clara: la mecanización textil permitió una producción masiva de algodón mediante inventos como la lanzadera volante, la Spinning Jenny, el Water Frame y el Mule; la siderurgia adoptó progresivamente el carbón mineral, cambiando las técnicas de fundición; y la energía de vapor articuló finalmente la nueva potencia productiva. Estas novedades, aunque inicialmente desligadas de la ciencia universitaria, reconfiguraron el trabajo, provocaron desplazamientos sociales y dieron lugar a conflictos como el ludismo. En síntesis, la Primera Revolución Industrial significó una reestructuración económica irreversible que sentó las bases de la modernidad industrial.
+
+
+================================================================================
+                    REPORTE DE EVALUACION DEL GUION
+================================================================================
+
+MATRIZ DE CONFUSION:
+  Verdadero Positivo (TP):    7  - Conceptos clave incluidos correctamente
+  Falso Positivo (FP):        0  - Alucinaciones o ruido incluido
+  Falso Negativo (FN):        3  - Conceptos clave omitidos
+  Verdadero Negativo (TN):    6  - Ruido correctamente ignorado
+
+METRICAS DE RENDIMIENTO:
+  Exactitud (Accuracy):     81.25%  - Que tan limpio y completo es el guion
+  Sensibilidad (Recall):    70.00%  - Que tan completo es (CRITICO para educacion)
+  Especificidad:            100.00%  - Capacidad de filtrar ruido
+  Precision:                100.00%  - Que tan cierto es el contenido
+  F1-Score:                 82.35%  - Balance entre completitud y brevedad
+
+TASAS DE ERROR:
+  Tasa Falsos Positivos:    0.00%  - Frecuencia de alucinaciones
+  Tasa Falsos Negativos:    30.00%  - Frecuencia de omisiones
+
+INTERPRETACION:
+  - Una exactitud del 81% significa que el guion es moderadamente fiel al documento original.
+  - Un Recall del 70% indica que se cubrieron pocos los conceptos clave.
+  - Una Precision del 100% garantiza que casi todo el contenido es veraz.
+
+================================================================================
+
+
+================================================================================
+GRAFICAS GENERADAS
+================================================================================
+
+Las siguientes graficas se han generado y guardado:
+
+  📊 Matriz Confusion: .\graficas_Dialnet-LaPrimeraRevolucionIndustrial-6429088\matriz_confusion.png
+  📊 Metricas Principales: .\graficas_Dialnet-LaPrimeraRevolucionIndustrial-6429088\metricas_principales.png
+  📊 Radar Metricas: .\graficas_Dialnet-LaPrimeraRevolucionIndustrial-6429088\radar_metricas.png
+  📊 Distribucion Conceptos: .\graficas_Dialnet-LaPrimeraRevolucionIndustrial-6429088\distribucion_conceptos.png
+
+Todas las graficas estan en: .\graficas_Dialnet-LaPrimeraRevolucionIndustrial-6429088
