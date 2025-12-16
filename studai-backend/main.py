@@ -312,12 +312,19 @@ async def generate_video(file: UploadFile | None = File(None), user_additional_i
                 raise
 
         print(f"   ⏳ Rendering video (this may take a while)...")
-        final_video_burned_path = await asyncio.to_thread(render_video)
-        print(f"✅ Video rendered: {final_video_burned_path}")
-        
-        print(f"⬆️ Uploading video to blob storage...")
-        video_url = await upload_to_blob(final_video_burned_path, f"videos/{file_id}_final_video_{language}.mp4")
-        print(f"✅ Video uploaded: {video_url}")
+        try:
+            final_video_burned_path = await asyncio.to_thread(render_video)
+            print(f"✅ Video rendered: {final_video_burned_path}")
+            
+            print(f"⬆️ Uploading video to blob storage...")
+            video_url = await upload_to_blob(final_video_burned_path, f"videos/{file_id}_final_video_{language}.mp4")
+            print(f"✅ Video uploaded: {video_url}")
+        except Exception as video_error:
+            print(f"❌ Error durante generacion de video: {video_error}")
+            import traceback
+            traceback.print_exc()
+            # Si falla el video, retornar solo script y audio
+            video_url = None
 
         # ====================================================================
         # PASO 7: RETORNAR RESULTADOS
@@ -326,7 +333,7 @@ async def generate_video(file: UploadFile | None = File(None), user_additional_i
         result = {
             "script": script,
             "audio_url": audio_url,
-            "video_url": video_url
+            "video_url": video_url if video_url else None
         }
         if local_path:
             result.update({
