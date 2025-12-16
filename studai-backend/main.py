@@ -15,6 +15,8 @@
 
 from fastapi import FastAPI, UploadFile, File, Form, Request, HTTPException
 import os, uuid, shutil, asyncio
+import requests
+import re
 # Importar servicios de IA
 from services.genScript import extract_text_from_pdf, generate_short_video_script, client, deployment
 from services import genTTS, videoEditor
@@ -48,6 +50,85 @@ app.add_middleware(
 )
 
 BASE_DIR = Path("/Users/martinortiz/Desktop/Cloud_School/studai-backend/output/videos").resolve()
+
+# ============================================================================
+# FUNCION PARA OBTENER VIDEO BASE (DESCARGAR DESDE URL SI ES NECESARIO)
+# ============================================================================
+def convert_google_drive_link(url: str) -> str:
+    """
+    Convierte un link de Google Drive a formato de descarga directa.
+    
+    Parametros:
+        url (str): Link de Google Drive (ej: https://drive.google.com/file/d/FILE_ID/view)
+    
+    Retorna:
+        str: Link de descarga directa
+    """
+    # Extraer el FILE_ID del link de Google Drive
+    match = re.search(r'/file/d/([a-zA-Z0-9_-]+)', url)
+    if match:
+        file_id = match.group(1)
+        # Convertir a link de descarga directa
+        return f"https://drive.google.com/uc?export=download&id={file_id}"
+    return url
+
+async def get_base_video() -> str:
+    """
+    Obtiene la ruta del video base. Si no existe localmente, lo descarga desde una URL.
+    Soporta links de Google Drive y Azure Blob Storage.
+    
+    Retorna:
+        str: Ruta local del video base
+    """
+    local_video_path = "assets/content/MC/mc1.mp4"
+    
+    # Si el video existe localmente, usarlo
+    if os.path.exists(local_video_path):
+        return local_video_path
+    
+    # Si no existe, intentar descargarlo desde una URL
+    video_url = os.getenv("BASE_VIDEO_URL")
+    if video_url:
+        print(f"📥 Video base no encontrado localmente. Descargando desde URL...")
+        try:
+            # Crear directorio si no existe
+            os.makedirs(os.path.dirname(local_video_path), exist_ok=True)
+            
+            # Si es un link de Google Drive, convertirlo a descarga directa
+            if "drive.google.com" in video_url:
+                video_url = convert_google_drive_link(video_url)
+                print(f"   Link de Google Drive convertido a descarga directa")
+            
+            # Descargar el video
+            print(f"   Descargando desde: {video_url[:80]}...")
+            response = requests.get(video_url, stream=True, timeout=600)
+            response.raise_for_status()
+            
+            # Guardar el video
+            total_size = int(response.headers.get('content-length', 0))
+            downloaded = 0
+            with open(local_video_path, "wb") as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    if chunk:
+                        f.write(chunk)
+                        downloaded += len(chunk)
+                        if total_size > 0:
+                            percent = (downloaded / total_size) * 100
+                            if downloaded % (1024 * 1024) == 0:  # Mostrar cada MB
+                                print(f"   Descargado: {percent:.1f}% ({downloaded // (1024*1024)} MB)")
+            
+            print(f"✅ Video base descargado exitosamente: {local_video_path}")
+            return local_video_path
+        except Exception as e:
+            print(f"⚠️  Error al descargar video base: {e}")
+            print(f"   Asegurate de configurar BASE_VIDEO_URL en las variables de entorno")
+            raise FileNotFoundError(f"Video base no encontrado y no se pudo descargar. Configura BASE_VIDEO_URL en Render.")
+    
+    # Si no hay URL configurada, mostrar error claro
+    raise FileNotFoundError(
+        f"Video base no encontrado en '{local_video_path}'. "
+        f"Configura la variable de entorno BASE_VIDEO_URL con la URL del video (Google Drive o Azure Blob Storage)."
+    )
 
 def get_file_path_safe(filename: str) -> Path:
     safe_name = Path(filename).name
@@ -213,7 +294,8 @@ async def generate_video(file: UploadFile | None = File(None), user_additional_i
         print(f"🎬 Step 6: Starting video generation...")
         os.makedirs("output/videos", exist_ok=True)
         os.makedirs("output/temp", exist_ok=True)
-        base_video = "assets/content/MC/mc1.mp4"
+        # Obtener ruta del video base (descargar desde URL si no existe localmente)
+        base_video = await get_base_video()
         final_video_path = f"output/videos/{file_id}_final_video_{language}.mp4"
         
         print(f"   📹 Base video: {base_video}")
