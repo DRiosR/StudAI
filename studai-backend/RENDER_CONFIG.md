@@ -141,10 +141,18 @@ FFmpeg puede no estar disponible en Render por defecto. Si necesitas procesamien
 Render tiene almacenamiento efimero. Los archivos generados (videos, audios) deben subirse a Azure Blob Storage inmediatamente.
 
 ### 4. Timeouts
-Render tiene un timeout de 30 segundos para requests HTTP. Si el procesamiento de video tarda mas, considera:
-- Usar procesamiento asincrono
-- Usar WebSockets para actualizaciones en tiempo real
-- Mover el procesamiento a un servicio separado (Worker)
+**IMPORTANTE:** Render tiene un timeout de 30 segundos (free tier) o 5 minutos (paid) para requests HTTP. 
+
+El procesamiento de video puede tardar varios minutos (especialmente con subtítulos), por lo que Render puede cortar la conexión HTTP antes de que termine.
+
+**Soluciones:**
+1. **Upgrade a plan Standard o superior** - Aumenta el timeout a 5 minutos
+2. **Verificar logs en Render** - El proceso puede completarse aunque la conexión HTTP se corte
+3. **Usar procesamiento asincrono** - Implementar sistema de colas o background jobs
+4. **Usar WebSockets** - Para actualizaciones en tiempo real del progreso
+5. **Mover procesamiento a Worker** - Servicio separado para tareas largas
+
+**Nota:** Aunque Render corte la conexión HTTP, el proceso puede seguir ejecutándose en background. Verifica los logs para confirmar si el video se generó correctamente.
 
 ### 5. Recursos
 El procesamiento de video requiere:

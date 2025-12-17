@@ -13,10 +13,12 @@
 # 4. STT: Transcripcion de audio (videoEditor.py - AssemblyAI, opcional)
 # ============================================================================
 
-from fastapi import FastAPI, UploadFile, File, Form, Request, HTTPException
+from fastapi import FastAPI, UploadFile, File, Form, Request, HTTPException, BackgroundTasks
 import os, uuid, shutil, asyncio
 import requests
 import re
+from typing import Dict, Optional
+from datetime import datetime
 # Importar servicios de IA
 from services.genScript import extract_text_from_pdf, generate_short_video_script, client, deployment
 from services import genTTS, videoEditor
@@ -25,6 +27,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pathlib import Path
 app = FastAPI()
+
+# ============================================================================
+# SISTEMA DE JOBS PARA PROCESAMIENTO ASINCRONO
+# ============================================================================
+# Almacena el estado de los jobs de generacion de video
+# En produccion, considera usar Redis o una base de datos
+jobs: Dict[str, Dict] = {}
 
 # Configurar CORS: permite requests desde frontend local y produccion
 # En produccion, agrega tu dominio de Render o Vercel aqui
@@ -196,8 +205,104 @@ async def local_video(filename: str, request: Request):
     }
     return StreamingResponse(iter_full(), media_type=content_type, headers=headers)
 
+async def process_video_generation(
+    job_id: str,
+    file_id: str,
+    local_path: Optional[str],
+    blob_url: Optional[str],
+    user_additional_input: str,
+    script: str,
+    audio_path: str,
+    audio_url: str,
+    language: str
+):
+    """
+    Funcion que ejecuta la generacion de video en background.
+    Actualiza el estado del job mientras procesa.
+    """
+    try:
+        jobs[job_id]["status"] = "processing"
+        jobs[job_id]["message"] = "🎬 Generando video..."
+        
+        # Obtener ruta del video base
+        base_video = await get_base_video()
+        final_video_path = f"output/videos/{file_id}_final_video_{language}.mp4"
+        
+        print(f"   📹 Base video: {base_video}")
+        print(f"   🎵 Audio path: {audio_path}")
+        print(f"   📁 Output path: {final_video_path}")
+
+        def render_video():
+            try:
+                print(f"   🎬 Iniciando videoEditor.videoEditor()...")
+                result = videoEditor.videoEditor(base_video, audio_path, language, output_path=final_video_path)
+                print(f"   ✅ videoEditor completado")
+                return result
+            except Exception as e:
+                print(f"❌ Error in videoEditor: {e}")
+                import traceback
+                traceback.print_exc()
+                raise
+
+        print(f"   ⏳ Rendering video (this may take a while)...")
+        jobs[job_id]["message"] = "⏳ Renderizando video (esto puede tardar varios minutos)..."
+        
+        # Ejecutar renderizado de video en thread separado
+        final_video_burned_path = await asyncio.to_thread(render_video)
+        print(f"✅ Video rendered: {final_video_burned_path}")
+        
+        if not os.path.exists(final_video_burned_path):
+            raise FileNotFoundError(f"Video generado no encontrado: {final_video_burned_path}")
+        
+        file_size = os.path.getsize(final_video_burned_path)
+        print(f"   📊 Tamaño del video: {file_size / (1024*1024):.2f} MB")
+        
+        jobs[job_id]["message"] = "⬆️ Subiendo video a Azure Blob Storage..."
+        print(f"⬆️ Uploading video to blob storage...")
+        video_url = await upload_to_blob(final_video_burned_path, f"videos/{file_id}_final_video_{language}.mp4")
+        print(f"✅ Video uploaded: {video_url}")
+        
+        # Actualizar job con resultados
+        jobs[job_id]["status"] = "completed"
+        jobs[job_id]["message"] = "✅ Video generado exitosamente"
+        jobs[job_id]["result"] = {
+            "script": script,
+            "audio_url": audio_url,
+            "video_url": video_url
+        }
+        if local_path:
+            jobs[job_id]["result"]["pdf_name"] = file_id
+            jobs[job_id]["result"]["pdf_blob_url"] = blob_url
+        else:
+            jobs[job_id]["result"]["topic"] = user_additional_input
+        
+        jobs[job_id]["completed_at"] = datetime.now().isoformat()
+        
+    except Exception as video_error:
+        print(f"❌ Error durante generacion de video: {video_error}")
+        import traceback
+        traceback.print_exc()
+        jobs[job_id]["status"] = "error"
+        jobs[job_id]["message"] = f"❌ Error: {str(video_error)}"
+        jobs[job_id]["error"] = str(video_error)
+        # Retornar solo script y audio si falla el video
+        jobs[job_id]["result"] = {
+            "script": script,
+            "audio_url": audio_url,
+            "video_url": None
+        }
+        if local_path:
+            jobs[job_id]["result"]["pdf_name"] = file_id
+            jobs[job_id]["result"]["pdf_blob_url"] = blob_url
+        else:
+            jobs[job_id]["result"]["topic"] = user_additional_input
+
 @app.post("/generate/video")
-async def generate_video(file: UploadFile | None = File(None), user_additional_input: str = Form(...)):
+async def generate_video(
+    background_tasks: BackgroundTasks,
+    file: UploadFile | None = File(None), 
+    user_additional_input: str = Form(...)
+):
     """
     AGENTE INTELIGENTE: Orquesta el pipeline completo de generacion de video usando IA.
     
@@ -286,59 +391,42 @@ async def generate_video(file: UploadFile | None = File(None), user_additional_i
         audio_url = await upload_to_blob(audio_path, f"audio/{file_id}_{language}.mp3")
 
         # ====================================================================
-        # PASO 6: GENERAR VIDEO FINAL (edicion de video - NO es IA)
+        # PASO 6: CREAR JOB Y RETORNAR INMEDIATAMENTE
         # ====================================================================
-        # NOTA: La edicion de video NO es IA, es procesamiento de video normal
-        # Sin embargo, si se quisiera agregar subtitulos, se usaria
-        # transcripcion de audio (STT) que SÍ es IA (videoEditor.transcribe_audio)
-        print(f"🎬 Step 6: Starting video generation...")
-        os.makedirs("output/videos", exist_ok=True)
-        os.makedirs("output/temp", exist_ok=True)
-        # Obtener ruta del video base (descargar desde URL si no existe localmente)
-        base_video = await get_base_video()
-        final_video_path = f"output/videos/{file_id}_final_video_{language}.mp4"
-        
-        print(f"   📹 Base video: {base_video}")
-        print(f"   🎵 Audio path: {audio_path}")
-        print(f"   📁 Output path: {final_video_path}")
-
-        def render_video():
-            try:
-                return videoEditor.videoEditor(base_video, audio_path, language, output_path=final_video_path)
-            except Exception as e:
-                print(f"❌ Error in videoEditor: {e}")
-                import traceback
-                traceback.print_exc()
-                raise
-
-        print(f"   ⏳ Rendering video (this may take a while)...")
-        try:
-            final_video_burned_path = await asyncio.to_thread(render_video)
-            print(f"✅ Video rendered: {final_video_burned_path}")
-            
-            print(f"⬆️ Uploading video to blob storage...")
-            video_url = await upload_to_blob(final_video_burned_path, f"videos/{file_id}_final_video_{language}.mp4")
-            print(f"✅ Video uploaded: {video_url}")
-        except Exception as video_error:
-            print(f"❌ Error durante generacion de video: {video_error}")
-            import traceback
-            traceback.print_exc()
-            # Si falla el video, retornar solo script y audio
-            video_url = None
-
-        # ====================================================================
-        # PASO 7: RETORNAR RESULTADOS
-        # El agente ha completado su objetivo
-        # ====================================================================
-        print(f"📤 Retornando resultados:")
-        print(f"   📝 Script length: {len(script)} caracteres")
-        print(f"   🎵 Audio URL: {audio_url}")
-        print(f"   🎬 Video URL: {video_url if video_url else 'None'}")
-        
-        result = {
+        # Para evitar timeout de Render, retornamos inmediatamente
+        # y ejecutamos la generacion de video en background
+        job_id = str(uuid.uuid4())
+        jobs[job_id] = {
+            "status": "processing",
+            "message": "🎬 Generando video en background...",
+            "created_at": datetime.now().isoformat(),
             "script": script,
             "audio_url": audio_url,
-            "video_url": video_url if video_url else None
+            "video_url": None
+        }
+        
+        # Ejecutar generacion de video en background
+        background_tasks.add_task(
+            process_video_generation,
+            job_id=job_id,
+            file_id=file_id,
+            local_path=local_path,
+            blob_url=blob_url,
+            user_additional_input=user_additional_input,
+            script=script,
+            audio_path=audio_path,
+            audio_url=audio_url,
+            language=language
+        )
+        
+        # Retornar inmediatamente con job_id y resultados parciales
+        result = {
+            "job_id": job_id,
+            "script": script,
+            "audio_url": audio_url,
+            "video_url": None,  # Se actualizara cuando termine el background task
+            "status": "processing",
+            "message": "Video generandose en background. Usa /generate/video/status/{job_id} para verificar el estado."
         }
         if local_path:
             result.update({
@@ -349,10 +437,53 @@ async def generate_video(file: UploadFile | None = File(None), user_additional_i
             result.update({
                 "topic": user_additional_input
             })
+        
+        print(f"📤 Retornando resultados inmediatamente (video en background):")
+        print(f"   📝 Script length: {len(script)} caracteres")
+        print(f"   🎵 Audio URL: {audio_url}")
+        print(f"   🆔 Job ID: {job_id}")
         return result
 
     except Exception as e:
         return {"error": f"Server error: {str(e)}"}
+
+@app.get("/generate/video/status/{job_id}")
+async def get_video_status(job_id: str):
+    """
+    Endpoint para verificar el estado de un job de generacion de video.
+    El frontend debe hacer polling a este endpoint cada pocos segundos.
+    """
+    if job_id not in jobs:
+        raise HTTPException(status_code=404, detail="Job not found")
+    
+    job = jobs[job_id]
+    return {
+        "job_id": job_id,
+        "status": job.get("status", "unknown"),
+        "message": job.get("message", ""),
+        "result": job.get("result"),
+        "error": job.get("error"),
+        "created_at": job.get("created_at"),
+        "completed_at": job.get("completed_at")
+    }
+
+@app.get("/generate/video/result/{job_id}")
+async def get_video_result(job_id: str):
+    """
+    Endpoint para obtener los resultados completos de un job.
+    Retorna los mismos datos que el endpoint original cuando el video esta listo.
+    """
+    if job_id not in jobs:
+        raise HTTPException(status_code=404, detail="Job not found")
+    
+    job = jobs[job_id]
+    if job.get("status") != "completed":
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Job not completed yet. Status: {job.get('status')}"
+        )
+    
+    return job.get("result")
 
 if __name__ == "__main__":
     import uvicorn
