@@ -110,11 +110,17 @@ export default function VideoOutputSamplePage() {
               <Video className="w-6 h-6 text-pink-400" />
               <h3 className="text-lg font-semibold text-white">Final Video</h3>
             </div>
-            <video
-              controls
-              src={result.video_url}
-              className="w-full rounded-2xl border border-white/10"
-            />
+            {result.video_url ? (
+              <video
+                controls
+                src={result.video_url}
+                className="w-full rounded-2xl border border-white/10"
+              />
+            ) : (
+              <div className="w-full h-64 flex items-center justify-center rounded-2xl border border-white/10 bg-black/20">
+                <p className="text-white/60">Video no disponible</p>
+              </div>
+            )}
           </motion.div>
 
           <div className="pt-4">
