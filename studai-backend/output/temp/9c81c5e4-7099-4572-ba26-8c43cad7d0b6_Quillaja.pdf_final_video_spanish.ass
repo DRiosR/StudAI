@@ -1,0 +1,36 @@
+[Script Info]
+Title: Subtitles
+ScriptType: v4.00+
+WrapStyle: 0
+PlayResX: 1080
+PlayResY: 1920
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Gilroy-Bold,56,&H00FFFFFF,&H00FFFFFF,&H00000000,&H80000000,-1,0,0,0,100,100,0,0,1,4,2,5,10,10,50,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,00:00:00.16,00:00:03.20,Default,,0,0,0,,Hoy examinaremos de manera concisa la estabilidad, los riesgos de
+Dialogue: 0,00:00:03.20,00:00:06.12,Default,,0,0,0,,adulteración y las prácticas de calidad asociadas al extracto de
+Dialogue: 0,00:00:06.12,00:00:07.40,Default,,0,0,0,,Yucatch y dijera.
+Dialogue: 0,00:00:07.40,00:00:10.56,Default,,0,0,0,,En primer lugar, los adulterantes más frecuentes incluyen jarabe de
+Dialogue: 0,00:00:10.56,00:00:14.08,Default,,0,0,0,,maíz, empleado para aumentar falsamente el grado Briggs, y aditivos
+Dialogue: 0,00:00:14.08,00:00:17.35,Default,,0,0,0,,de quillaja de baja calidad utilizados para inflar aparentes niveles
+Dialogue: 0,00:00:17.35,00:00:18.32,Default,,0,0,0,,de saponinas.
+Dialogue: 0,00:00:18.39,00:00:22.19,Default,,0,0,0,,Estas prácticas incrementan la presencia de azúcares fermentables y microorganismos,
+Dialogue: 0,00:00:22.19,00:00:25.39,Default,,0,0,0,,lo que favorece la fermentación dentro de envases sellados, genera
+Dialogue: 0,00:00:25.39,00:00:28.16,Default,,0,0,0,,CO y provoca la hinchazón o la ruptura de contenedores
+Dialogue: 0,00:00:28.16,00:00:29.19,Default,,0,0,0,,como los IBC.
+Dialogue: 0,00:00:29.46,00:00:33.42,Default,,0,0,0,,El mecanismo es azúcares y microorganismos y ausencia de pasteurización
+Dialogue: 0,00:00:33.42,00:00:37.07,Default,,0,0,0,,o conservantes adecuados, metabolismo microbiano, gas y presión interna.
+Dialogue: 0,00:00:37.22,00:00:40.03,Default,,0,0,0,,La detección de adulteración exige análisis instrumentales.
+Dialogue: 0,00:00:40.18,00:00:45.07,Default,,0,0,0,,HPLC revela picos y distribuciones moleculares anómalas, mientras que LCMS
+Dialogue: 0,00:00:45.07,00:00:48.75,Default,,0,0,0,,diferencia saponinas esteroidales de yuca frente a triterpenoides de quillaha
+Dialogue: 0,00:00:48.75,00:00:52.35,Default,,0,0,0,,y detecta fragmentos de azúcares polimerizados incluso a bajos porcentajes.
+Dialogue: 0,00:00:52.59,00:00:56.59,Default,,0,0,0,,Finalmente, las salvaguardas eficaces comprenden control de temperatura de extracción,
+Dialogue: 0,00:00:56.99,00:01:01.67,Default,,0,0,0,,regulación de pH, pasteurización, ausencia de dilución con azúcares, preservantes
+Dialogue: 0,00:01:01.67,00:01:04.82,Default,,0,0,0,,alimentarios apropiados, saneamiento estricto y trazabilidad.
+Dialogue: 0,00:01:05.06,00:01:08.79,Default,,0,0,0,,En conclusión, la autenticidad y la estabilidad dependen de procedimientos
+Dialogue: 0,00:01:08.79,00:01:11.31,Default,,0,0,0,,técnicos rigurosos y del abastecimiento responsable.

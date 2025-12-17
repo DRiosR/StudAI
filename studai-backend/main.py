@@ -77,8 +77,15 @@ def convert_google_drive_link(url: str) -> str:
     match = re.search(r'/file/d/([a-zA-Z0-9_-]+)', url)
     if match:
         file_id = match.group(1)
-        # Convertir a link de descarga directa
-        return f"https://drive.google.com/uc?export=download&id={file_id}"
+        # Para archivos grandes, usar confirm=t para evitar página de advertencia
+        return f"https://drive.google.com/uc?export=download&confirm=t&id={file_id}"
+    
+    # Si ya es un link uc?, extraer el ID y reconstruirlo con confirm=t
+    match_uc = re.search(r'[?&]id=([a-zA-Z0-9_-]+)', url)
+    if match_uc:
+        file_id = match_uc.group(1)
+        return f"https://drive.google.com/uc?export=download&confirm=t&id={file_id}"
+    
     return url
 
 async def get_base_video() -> str:
@@ -121,22 +128,43 @@ async def get_base_video() -> str:
         
         # Si es un link de Google Drive, convertirlo a descarga directa
         if "drive.google.com" in video_url:
+            original_url = video_url
             video_url = convert_google_drive_link(video_url)
-            print(f"   ✅ Link de Google Drive convertido a descarga directa")
+            print(f"   ✅ Link de Google Drive convertido:")
+            print(f"      Original: {original_url[:80]}...")
+            print(f"      Descarga: {video_url[:80]}...")
         
         # Descargar el video con mejor manejo de errores
         print(f"   Descargando desde: {video_url[:100]}...")
         
         # Intentar descargar con headers para evitar problemas con Google Drive
         headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
         }
         
-        response = requests.get(video_url, stream=True, timeout=600, headers=headers, allow_redirects=True)
+        # Para Google Drive, usar sesión para manejar cookies y redirecciones
+        session = requests.Session()
+        response = session.get(video_url, stream=True, timeout=600, headers=headers, allow_redirects=True)
         response.raise_for_status()
+        
+        # Verificar si es HTML (página de error de Google Drive)
+        content_type = response.headers.get('content-type', '').lower()
+        print(f"   📄 Content-Type inicial: {content_type}")
+        
+        if 'text/html' in content_type:
+            # Es una página HTML, probablemente Google Drive está bloqueando la descarga
+            print(f"   ⚠️  Google Drive devolvió HTML. Esto significa que el archivo es demasiado grande o requiere permisos especiales.")
+            print(f"   💡 SOLUCION: Sube el video a Azure Blob Storage y usa esa URL en BASE_VIDEO_URL")
+            raise IOError(
+                "Google Drive está bloqueando la descarga del archivo. "
+                "El archivo puede ser demasiado grande (>100MB) o requiere permisos especiales. "
+                "SOLUCION: Sube el video a Azure Blob Storage y usa esa URL en BASE_VIDEO_URL. "
+                "Ejemplo: BASE_VIDEO_URL=https://studai.blob.core.windows.net/videos/mc1.mp4?[SAS_TOKEN]"
+            )
         
         total_size = int(response.headers.get('content-length', 0))
         print(f"   ✅ Conexión establecida. Tamaño esperado: {total_size / (1024*1024):.2f} MB" if total_size > 0 else "   ✅ Conexión establecida. Tamaño: desconocido")
+        print(f"   📄 Content-Type: {content_type}")
         
         # Guardar el video con verificación
         downloaded = 0
@@ -160,13 +188,25 @@ async def get_base_video() -> str:
             file_size = os.path.getsize(temp_path)
             print(f"   📊 Archivo descargado: {file_size / (1024*1024):.2f} MB")
             
+            # Verificar que no es HTML (primeros bytes)
+            with open(temp_path, "rb") as f:
+                first_bytes = f.read(1024)
+                if b'<html' in first_bytes.lower() or b'<!doctype' in first_bytes.lower() or b'<head' in first_bytes.lower():
+                    error_msg = (
+                        f"El archivo descargado es HTML (página de error de Google Drive), no un video. "
+                        f"Tamaño: {file_size} bytes. "
+                        f"Google Drive bloquea descargas directas de archivos grandes. "
+                        f"SOLUCION: Sube el video a Azure Blob Storage y usa esa URL en BASE_VIDEO_URL."
+                    )
+                    raise IOError(error_msg)
+            
             # Verificar que el tamaño coincide (si se conoce)
             if total_size > 0 and abs(file_size - total_size) > 1024:  # Permitir 1KB de diferencia
                 raise IOError(f"El archivo descargado está incompleto. Esperado: {total_size} bytes, Obtenido: {file_size} bytes")
             
             # Verificar que es un archivo MP4 válido (al menos debe tener un tamaño mínimo razonable)
             if file_size < 1024 * 100:  # Menos de 100KB probablemente está corrupto
-                raise IOError(f"El archivo descargado es demasiado pequeño ({file_size} bytes), probablemente está corrupto")
+                raise IOError(f"El archivo descargado es demasiado pequeño ({file_size} bytes), probablemente está corrupto o es una página de error")
             
             # Mover el archivo temporal al destino final
             if os.path.exists(local_video_path):

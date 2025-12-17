@@ -83,30 +83,43 @@ export default function VideoOutputPage() {
         }
         const status = await response.json();
         
-        console.log("Polling status:", status);
+        console.log("📊 Polling status:", status);
+        console.log("   Status:", status.status);
+        console.log("   Result:", status.result);
+        console.log("   Video URL en result:", status.result?.video_url);
         
         if (status.status === "completed" && status.result) {
+          const videoUrl = status.result.video_url;
+          console.log("✅ Job completado! Video URL:", videoUrl);
+          
           // Actualizar resultado con video_url usando el estado actual
           setResult((prevResult) => {
-            if (!prevResult) return prevResult;
+            if (!prevResult) {
+              console.warn("⚠️  No hay resultado previo para actualizar");
+              return null;
+            }
             const updatedResult = {
               ...prevResult,
               ...status.result,
-              video_url: status.result.video_url
+              video_url: videoUrl
             };
+            console.log("🔄 Actualizando resultado con video_url:", updatedResult.video_url);
             try {
               sessionStorage.setItem('studaiLastResult', JSON.stringify(updatedResult));
+              console.log("💾 Resultado guardado en sessionStorage");
             } catch (e) {
               console.warn('Failed to update sessionStorage', e);
             }
             return updatedResult;
           });
           setIsPolling(false);
+          console.log("✅ Polling detenido, video debería mostrarse");
         } else if (status.status === "error") {
-          console.error("Error generando video:", status.error);
+          console.error("❌ Error generando video:", status.error);
           setIsPolling(false);
         } else {
           // Seguir haciendo polling cada 2 segundos
+          console.log(`⏳ Job aún procesando (${status.status}), continuando polling...`);
           setTimeout(poll, 2000);
         }
       } catch (err) {
@@ -196,16 +209,18 @@ export default function VideoOutputPage() {
                 <h3 className="text-lg font-semibold text-white">Final Video</h3>
               </div>
               {(() => {
-                const hasValidVideoUrl = result.video_url && 
-                                         result.video_url !== 'null' && 
-                                         result.video_url !== null &&
-                                         typeof result.video_url === 'string' &&
-                                         result.video_url.trim() !== '';
-                console.log('🎬 Verificando video_url:', result.video_url, 'Válido:', hasValidVideoUrl);
+                const videoUrl = result.video_url;
+                const hasValidVideoUrl = videoUrl && 
+                                         videoUrl !== 'null' && 
+                                         videoUrl !== null &&
+                                         typeof videoUrl === 'string' &&
+                                         videoUrl.trim() !== '';
+                console.log('🎬 Verificando video_url:', videoUrl, 'Tipo:', typeof videoUrl, 'Válido:', hasValidVideoUrl);
                 return hasValidVideoUrl;
               })() ? (
                 <div className="flex justify-center">
                   <video
+                    key={result.video_url} // Forzar re-render cuando cambie la URL
                     controls
                     src={result.video_url || undefined}
                     className="max-w-full max-h-[600px] rounded-2xl border border-white/10"
@@ -213,9 +228,17 @@ export default function VideoOutputPage() {
                     onError={(e) => {
                       console.error('❌ Error al cargar video:', e);
                       console.error('URL del video:', result.video_url);
+                      const target = e.target as HTMLVideoElement;
+                      if (target.error) {
+                        console.error('Código de error:', target.error.code);
+                        console.error('Mensaje:', target.error.message);
+                      }
                     }}
                     onLoadStart={() => {
                       console.log('⏳ Cargando video desde:', result.video_url);
+                    }}
+                    onLoadedMetadata={() => {
+                      console.log('✅ Metadatos del video cargados');
                     }}
                     onCanPlay={() => {
                       console.log('✅ Video listo para reproducir');
