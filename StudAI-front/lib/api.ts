@@ -46,25 +46,49 @@ export async function pollVideoStatus(jobId: string): Promise<GeneratedVideoResu
   const STATUS_ENDPOINT = `${ENDPOINT}/generate/video/status/${jobId}`;
   
   return new Promise((resolve, reject) => {
+    let pollCount = 0;
+    const MAX_POLLS = 300; // Máximo 10 minutos (300 * 2 segundos)
+    
     const poll = async () => {
       try {
+        pollCount++;
         const response = await axios.get(STATUS_ENDPOINT);
         const status = response.data;
         
-        console.log("Polling status:", status);
+        console.log(`📊 Polling #${pollCount} - Status:`, status.status);
         
-        if (status.status === "completed") {
-          // Obtener resultados completos
-          const resultResponse = await axios.get(`${ENDPOINT}/generate/video/result/${jobId}`);
-          resolve(resultResponse.data);
+        if (status.status === "completed" && status.result) {
+          console.log("✅ Job completado! Resultado:", status.result);
+          // Usar el resultado del status directamente (ya incluye video_url)
+          if (status.result.video_url) {
+            resolve(status.result);
+          } else {
+            // Si no hay video_url en el resultado, intentar obtenerlo del endpoint de result
+            try {
+              const resultResponse = await axios.get(`${ENDPOINT}/generate/video/result/${jobId}`);
+              console.log("✅ Resultado obtenido del endpoint /result:", resultResponse.data);
+              resolve(resultResponse.data);
+            } catch (err) {
+              console.warn("⚠️  No se pudo obtener resultado del endpoint /result, usando status.result");
+              resolve(status.result);
+            }
+          }
         } else if (status.status === "error") {
           reject(new Error(status.error || "Error generando video"));
+        } else if (pollCount >= MAX_POLLS) {
+          reject(new Error("Timeout: El video está tardando demasiado en generarse"));
         } else {
           // Seguir haciendo polling cada 2 segundos
           setTimeout(poll, 2000);
         }
       } catch (err: any) {
-        reject(err);
+        if (pollCount >= MAX_POLLS) {
+          reject(new Error("Timeout: Máximo número de intentos alcanzado"));
+        } else {
+          // Reintentar en caso de error de red
+          console.warn(`⚠️  Error en polling #${pollCount}, reintentando...`, err);
+          setTimeout(poll, 2000);
+        }
       }
     };
     

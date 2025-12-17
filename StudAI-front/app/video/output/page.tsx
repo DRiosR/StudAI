@@ -71,11 +71,22 @@ export default function VideoOutputPage() {
     }
   }, [searchParams]);
 
+  // Efecto para forzar re-render cuando video_url cambie
+  useEffect(() => {
+    if (result?.video_url) {
+      console.log('🎬 video_url detectado, forzando re-render:', result.video_url);
+    }
+  }, [result?.video_url]);
+
   const pollForVideo = async (jobId: string) => {
     const ENDPOINT = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
     const STATUS_ENDPOINT = `${ENDPOINT}/generate/video/status/${jobId}`;
     
+    let pollCount = 0;
+    const MAX_POLLS = 300; // Máximo 10 minutos
+    
     const poll = async () => {
+      pollCount++;
       try {
         const response = await fetch(STATUS_ENDPOINT);
         if (!response.ok) {
@@ -92,11 +103,24 @@ export default function VideoOutputPage() {
           const videoUrl = status.result.video_url;
           console.log("✅ Job completado! Video URL:", videoUrl);
           
+          // Verificar que el video_url sea válido
+          if (!videoUrl || videoUrl === 'null' || videoUrl === null) {
+            console.warn("⚠️  Job completado pero video_url es inválido, continuando polling...");
+            setTimeout(poll, 2000);
+            return;
+          }
+          
           // Actualizar resultado con video_url usando el estado actual
           setResult((prevResult) => {
             if (!prevResult) {
-              console.warn("⚠️  No hay resultado previo para actualizar");
-              return null;
+              console.warn("⚠️  No hay resultado previo, creando nuevo resultado desde status.result");
+              const newResult = { ...status.result };
+              try {
+                sessionStorage.setItem('studaiLastResult', JSON.stringify(newResult));
+              } catch (e) {
+                console.warn('Failed to update sessionStorage', e);
+              }
+              return newResult;
             }
             const updatedResult = {
               ...prevResult,
@@ -113,18 +137,29 @@ export default function VideoOutputPage() {
             return updatedResult;
           });
           setIsPolling(false);
-          console.log("✅ Polling detenido, video debería mostrarse");
+          console.log("✅ Polling detenido, video debería mostrarse ahora");
         } else if (status.status === "error") {
           console.error("❌ Error generando video:", status.error);
           setIsPolling(false);
         } else {
           // Seguir haciendo polling cada 2 segundos
-          console.log(`⏳ Job aún procesando (${status.status}), continuando polling...`);
-          setTimeout(poll, 2000);
+          if (pollCount >= MAX_POLLS) {
+            console.error("❌ Timeout: Máximo número de intentos alcanzado");
+            setIsPolling(false);
+          } else {
+            console.log(`⏳ Job aún procesando (${status.status}), continuando polling... (${pollCount}/${MAX_POLLS})`);
+            setTimeout(poll, 2000);
+          }
         }
       } catch (err) {
-        console.error("Error en polling:", err);
-        setIsPolling(false);
+        console.error(`❌ Error en polling #${pollCount}:`, err);
+        if (pollCount >= MAX_POLLS) {
+          setIsPolling(false);
+        } else {
+          // Reintentar en caso de error de red
+          console.warn(`⚠️  Reintentando polling... (${pollCount}/${MAX_POLLS})`);
+          setTimeout(poll, 2000);
+        }
       }
     };
     
