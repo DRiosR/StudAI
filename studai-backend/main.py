@@ -47,24 +47,44 @@ def load_jobs() -> Dict[str, Dict]:
             return {}
     return {}
 
-def save_jobs(jobs_dict: Dict[str, Dict]):
-    """Guarda los jobs en el archivo JSON"""
-    try:
-        with open(JOBS_FILE, 'w', encoding='utf-8') as f:
-            json.dump(jobs_dict, f, indent=2, ensure_ascii=False)
-    except Exception as e:
-        print(f"⚠️  Error guardando jobs en archivo: {e}")
+import threading
+
+# Lock para evitar escrituras concurrentes al archivo
+_jobs_lock = threading.Lock()
+_last_save_time = 0
+SAVE_INTERVAL = 5  # Guardar solo cada 5 segundos para evitar escrituras excesivas
+
+def save_jobs(jobs_dict: Dict[str, Dict], force: bool = False):
+    """Guarda los jobs en el archivo JSON con throttling"""
+    global _last_save_time
+    current_time = datetime.now().timestamp()
+    
+    # Solo guardar si ha pasado el intervalo o si es forzado
+    if not force and (current_time - _last_save_time) < SAVE_INTERVAL:
+        return
+    
+    with _jobs_lock:
+        try:
+            with open(JOBS_FILE, 'w', encoding='utf-8') as f:
+                json.dump(jobs_dict, f, indent=2, ensure_ascii=False)
+            _last_save_time = current_time
+        except Exception as e:
+            print(f"⚠️  Error guardando jobs en archivo: {e}")
 
 # Cargar jobs existentes al iniciar
 jobs: Dict[str, Dict] = load_jobs()
 print(f"📦 Jobs cargados al iniciar: {len(jobs)}")
 
-def update_job(job_id: str, updates: Dict):
-    """Actualiza un job y guarda el estado en el archivo"""
+def update_job(job_id: str, updates: Dict, force_save: bool = False):
+    """Actualiza un job y guarda el estado en el archivo (con throttling)"""
     if job_id not in jobs:
         jobs[job_id] = {"created_at": datetime.now().isoformat()}
     jobs[job_id].update(updates)
-    save_jobs(jobs)
+    # Solo guardar si es crítico (completed, error) o si ha pasado el intervalo
+    if force_save or updates.get("status") in ["completed", "error"]:
+        save_jobs(jobs, force=True)
+    else:
+        save_jobs(jobs, force=False)
 
 # Configurar CORS: permite requests desde frontend local y produccion
 # En produccion, agrega tu dominio de Render o Vercel aqui
@@ -383,7 +403,7 @@ async def process_video_generation(
                 "error": error_msg,
                 "result": result,
                 "completed_at": datetime.now().isoformat()
-            })
+            }, force_save=True)  # Forzar guardado al error
             return
         
         final_video_path = f"output/videos/{file_id}_final_video_{language}.mp4"
@@ -439,7 +459,7 @@ async def process_video_generation(
             "message": "✅ Video generado exitosamente",
             "result": result,
             "completed_at": datetime.now().isoformat()
-        })
+        }, force_save=True)  # Forzar guardado al completar
         
     except Exception as video_error:
         print(f"❌ Error durante generacion de video: {video_error}")
@@ -462,7 +482,7 @@ async def process_video_generation(
             "message": f"❌ Error: {str(video_error)}",
             "error": str(video_error),
             "result": result
-        })
+        }, force_save=True)  # Forzar guardado al error
 
 @app.post("/generate/video")
 async def generate_video(
@@ -619,10 +639,8 @@ async def get_video_status(job_id: str):
     Endpoint para verificar el estado de un job de generacion de video.
     El frontend debe hacer polling a este endpoint cada pocos segundos.
     """
-    # Recargar jobs desde el archivo por si el servidor se reinició
-    global jobs
-    jobs = load_jobs()
-    
+    # No recargar en cada request para evitar I/O excesivo
+    # Solo usar el diccionario en memoria (se recarga al iniciar)
     if job_id not in jobs:
         # Si el job no existe, puede ser que el servidor se reinició
         # Retornar un error más descriptivo
