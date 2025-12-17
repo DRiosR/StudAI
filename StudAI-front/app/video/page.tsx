@@ -19,7 +19,7 @@ export default function VideoPage() {
   const [file, setFile] = useState<File | null>(null);
   const [additionalInput, setAdditionalInput] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
-  const [stage, setStage] = useState<'idle'>('idle');
+  const [stage, setStage] = useState<'idle' | 'polling'>('idle');
   const [showConfetti, setShowConfetti] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [loaderIndex, setLoaderIndex] = useState(0);
