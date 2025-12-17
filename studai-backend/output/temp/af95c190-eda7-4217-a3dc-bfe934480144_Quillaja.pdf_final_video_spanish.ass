@@ -1,0 +1,35 @@
+[Script Info]
+Title: Subtitles
+ScriptType: v4.00+
+WrapStyle: 0
+PlayResX: 1080
+PlayResY: 1920
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Gilroy-Bold,56,&H00FFFFFF,&H00FFFFFF,&H00000000,&H80000000,-1,0,0,0,100,100,0,0,1,4,2,5,10,10,50,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,00:00:00.08,00:00:02.96,Default,,0,0,0,,Hoy abordaremos la integridad y estabilidad del extracto de Yucatch
+Dialogue: 0,00:00:02.96,00:00:05.75,Default,,0,0,0,,y dijera en el mercado global, con especial atención a
+Dialogue: 0,00:00:05.75,00:00:08.48,Default,,0,0,0,,los riesgos de adulteración y sus consecuencias operativas.
+Dialogue: 0,00:00:08.64,00:00:10.96,Default,,0,0,0,,En primer lugar, la adición de jarabe de maíz se
+Dialogue: 0,00:00:10.96,00:00:13.27,Default,,0,0,0,,utiliza para inflar el valor de grados Briggs sin aumentar
+Dialogue: 0,00:00:13.27,00:00:15.00,Default,,0,0,0,,la fracción funcional de saponinas.
+Dialogue: 0,00:00:15.00,00:00:18.80,Default,,0,0,0,,Sin embargo, introduce azúcares altamente fermentables que en presencia de
+Dialogue: 0,00:00:18.80,00:00:23.48,Default,,0,0,0,,microorganismos promueven crecimiento microbiano y generación de CO, provocando la
+Dialogue: 0,00:00:23.48,00:00:25.67,Default,,0,0,0,,hinchazón o ruptura de contenedores IBC.
+Dialogue: 0,00:00:25.92,00:00:28.96,Default,,0,0,0,,En segundo lugar, la mezcla con extractos económicos de quillaha
+Dialogue: 0,00:00:28.96,00:00:32.68,Default,,0,0,0,,aporta saponinas triterpenoides que falsean ensayos simples y suelen contener
+Dialogue: 0,00:00:32.68,00:00:36.89,Default,,0,0,0,,contaminantes microbianos y compuestos degradados, desestabilizando la formulación.
+Dialogue: 0,00:00:36.96,00:00:41.49,Default,,0,0,0,,La identificación de adulteraciones requiere análisis instrumentales como HPLC y
+Dialogue: 0,00:00:41.49,00:00:46.57,Default,,0,0,0,,LCMS que revelan picos no característicos y perfiles moleculares inconsistentes.
+Dialogue: 0,00:00:46.89,00:00:50.89,Default,,0,0,0,,Finalmente, la estabilidad auténtica depende de controles de procesos rigurosos,
+Dialogue: 0,00:00:50.89,00:00:55.60,Default,,0,0,0,,extracción a temperatura controlada, regulación de pH para pasteurización, ausencia
+Dialogue: 0,00:00:55.60,00:00:58.32,Default,,0,0,0,,de diluciones con azúcares y trazabilidad completa.
+Dialogue: 0,00:00:58.39,00:01:01.39,Default,,0,0,0,,En conclusión, la pureza y seguridad del extracto de yuca
+Dialogue: 0,00:01:01.39,00:01:03.35,Default,,0,0,0,,exigen prácticas de calidad estrictas.
+Dialogue: 0,00:01:03.43,00:01:07.23,Default,,0,0,0,,Solo así se garantiza estabilidad, autenticidad y seguridad para aplicaciones
+Dialogue: 0,00:01:07.23,00:01:08.71,Default,,0,0,0,,industriales y agropecuarias.

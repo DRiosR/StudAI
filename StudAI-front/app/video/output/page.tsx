@@ -19,27 +19,51 @@ export default function VideoOutputPage() {
         const decoded = decodeURIComponent(urlParam);
         const parsed = JSON.parse(decoded) as GeneratedVideoResult;
         console.log('📥 Resultado parseado desde URL:', parsed);
+        console.log('🎬 Video URL:', parsed.video_url);
+        console.log('🆔 Job ID:', parsed.job_id);
         setResult(parsed);
         try {
           sessionStorage.setItem('studaiLastResult', JSON.stringify(parsed));
         } catch {}
         
-        // Si hay job_id y no hay video_url, hacer polling
-        if (parsed.job_id && !parsed.video_url) {
+        // Verificar si el video_url es válido
+        const hasValidVideoUrl = parsed.video_url && 
+                                 parsed.video_url !== 'null' && 
+                                 parsed.video_url !== null &&
+                                 parsed.video_url.trim() !== '';
+        
+        // Si hay job_id y no hay video_url válido, hacer polling
+        if (parsed.job_id && !hasValidVideoUrl) {
+          console.log('⏳ Iniciando polling para job_id:', parsed.job_id);
           setIsPolling(true);
           pollForVideo(parsed.job_id);
+        } else if (hasValidVideoUrl) {
+          console.log('✅ Video URL ya disponible:', parsed.video_url);
+          setIsPolling(false);
         }
         return;
       }
       const stored = sessionStorage.getItem('studaiLastResult');
       if (stored) {
         const parsed = JSON.parse(stored) as GeneratedVideoResult;
+        console.log('📥 Resultado desde sessionStorage:', parsed);
+        console.log('🎬 Video URL:', parsed.video_url);
         setResult(parsed);
         
-        // Si hay job_id y no hay video_url, hacer polling
-        if (parsed.job_id && !parsed.video_url) {
+        // Verificar si el video_url es válido
+        const hasValidVideoUrl = parsed.video_url && 
+                                 parsed.video_url !== 'null' && 
+                                 parsed.video_url !== null &&
+                                 parsed.video_url.trim() !== '';
+        
+        // Si hay job_id y no hay video_url válido, hacer polling
+        if (parsed.job_id && !hasValidVideoUrl) {
+          console.log('⏳ Iniciando polling para job_id:', parsed.job_id);
           setIsPolling(true);
           pollForVideo(parsed.job_id);
+        } else if (hasValidVideoUrl) {
+          console.log('✅ Video URL ya disponible:', parsed.video_url);
+          setIsPolling(false);
         }
       }
     } catch (e) {
@@ -54,24 +78,30 @@ export default function VideoOutputPage() {
     const poll = async () => {
       try {
         const response = await fetch(STATUS_ENDPOINT);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const status = await response.json();
         
         console.log("Polling status:", status);
         
         if (status.status === "completed" && status.result) {
-          // Actualizar resultado con video_url
-          const updatedResult = {
-            ...result!,
-            ...status.result,
-            video_url: status.result.video_url
-          };
-          setResult(updatedResult);
+          // Actualizar resultado con video_url usando el estado actual
+          setResult((prevResult) => {
+            if (!prevResult) return prevResult;
+            const updatedResult = {
+              ...prevResult,
+              ...status.result,
+              video_url: status.result.video_url
+            };
+            try {
+              sessionStorage.setItem('studaiLastResult', JSON.stringify(updatedResult));
+            } catch (e) {
+              console.warn('Failed to update sessionStorage', e);
+            }
+            return updatedResult;
+          });
           setIsPolling(false);
-          try {
-            sessionStorage.setItem('studaiLastResult', JSON.stringify(updatedResult));
-          } catch (e) {
-            console.warn('Failed to update sessionStorage', e);
-          }
         } else if (status.status === "error") {
           console.error("Error generando video:", status.error);
           setIsPolling(false);
@@ -165,13 +195,31 @@ export default function VideoOutputPage() {
                 <Video className="w-6 h-6 text-pink-400" />
                 <h3 className="text-lg font-semibold text-white">Final Video</h3>
               </div>
-              {result.video_url ? (
+              {(() => {
+                const hasValidVideoUrl = result.video_url && 
+                                         result.video_url !== 'null' && 
+                                         result.video_url !== null &&
+                                         typeof result.video_url === 'string' &&
+                                         result.video_url.trim() !== '';
+                console.log('🎬 Verificando video_url:', result.video_url, 'Válido:', hasValidVideoUrl);
+                return hasValidVideoUrl;
+              })() ? (
                 <div className="flex justify-center">
                   <video
                     controls
-                    src={result.video_url}
+                    src={result.video_url || undefined}
                     className="max-w-full max-h-[600px] rounded-2xl border border-white/10"
                     style={{ width: 'auto', height: 'auto' }}
+                    onError={(e) => {
+                      console.error('❌ Error al cargar video:', e);
+                      console.error('URL del video:', result.video_url);
+                    }}
+                    onLoadStart={() => {
+                      console.log('⏳ Cargando video desde:', result.video_url);
+                    }}
+                    onCanPlay={() => {
+                      console.log('✅ Video listo para reproducir');
+                    }}
                   />
                 </div>
               ) : isPolling ? (

@@ -67,6 +67,21 @@ FFMPEG_PATH=/usr/bin/ffmpeg
 ```
 **Nota:** En Render, FFmpeg puede no estar disponible. Si es necesario, considera usar un buildpack personalizado o instalar en el Build Command.
 
+### Video Base (REQUERIDO para generacion de video)
+```
+BASE_VIDEO_URL=https://drive.google.com/file/d/TU_FILE_ID/view?usp=drive_link
+```
+**IMPORTANTE:** Esta variable es REQUERIDA para generar videos. Puedes usar:
+- **Google Drive:** Link público del video (se convertirá automáticamente a descarga directa)
+- **Azure Blob Storage:** URL SAS del video base
+- **Cualquier URL pública:** Que permita descarga directa del archivo MP4
+
+**Ejemplo con Google Drive:**
+1. Sube tu video base a Google Drive
+2. Haz clic derecho > "Obtener enlace" > "Cualquiera con el enlace"
+3. Copia el link completo (ej: `https://drive.google.com/file/d/1iLsFRXaOGlhc0_79d14Svx7T0JiG2xuH/view?usp=drive_link`)
+4. Pega ese link en `BASE_VIDEO_URL`
+
 ---
 
 ## Instrucciones paso a paso

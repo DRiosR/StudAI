@@ -88,56 +88,80 @@ async def get_base_video() -> str:
     
     Retorna:
         str: Ruta local del video base
+    
+    Lanza:
+        FileNotFoundError: Si el video no se encuentra y no se puede descargar
     """
     local_video_path = "assets/content/MC/mc1.mp4"
     
     # Si el video existe localmente, usarlo
     if os.path.exists(local_video_path):
+        print(f"✅ Video base encontrado localmente: {local_video_path}")
         return local_video_path
     
     # Si no existe, intentar descargarlo desde una URL
     video_url = os.getenv("BASE_VIDEO_URL")
-    if video_url:
-        print(f"📥 Video base no encontrado localmente. Descargando desde URL...")
-        try:
-            # Crear directorio si no existe
-            os.makedirs(os.path.dirname(local_video_path), exist_ok=True)
-            
-            # Si es un link de Google Drive, convertirlo a descarga directa
-            if "drive.google.com" in video_url:
-                video_url = convert_google_drive_link(video_url)
-                print(f"   Link de Google Drive convertido a descarga directa")
-            
-            # Descargar el video
-            print(f"   Descargando desde: {video_url[:80]}...")
-            response = requests.get(video_url, stream=True, timeout=600)
-            response.raise_for_status()
-            
-            # Guardar el video
-            total_size = int(response.headers.get('content-length', 0))
-            downloaded = 0
-            with open(local_video_path, "wb") as f:
-                for chunk in response.iter_content(chunk_size=8192):
-                    if chunk:
-                        f.write(chunk)
-                        downloaded += len(chunk)
-                        if total_size > 0:
-                            percent = (downloaded / total_size) * 100
-                            if downloaded % (1024 * 1024) == 0:  # Mostrar cada MB
-                                print(f"   Descargado: {percent:.1f}% ({downloaded // (1024*1024)} MB)")
-            
-            print(f"✅ Video base descargado exitosamente: {local_video_path}")
-            return local_video_path
-        except Exception as e:
-            print(f"⚠️  Error al descargar video base: {e}")
-            print(f"   Asegurate de configurar BASE_VIDEO_URL en las variables de entorno")
-            raise FileNotFoundError(f"Video base no encontrado y no se pudo descargar. Configura BASE_VIDEO_URL en Render.")
+    print(f"📥 Video base no encontrado localmente en: {local_video_path}")
+    print(f"   BASE_VIDEO_URL configurada: {'Sí' if video_url else 'No'}")
     
-    # Si no hay URL configurada, mostrar error claro
-    raise FileNotFoundError(
-        f"Video base no encontrado en '{local_video_path}'. "
-        f"Configura la variable de entorno BASE_VIDEO_URL con la URL del video (Google Drive o Azure Blob Storage)."
-    )
+    if not video_url:
+        error_msg = (
+            f"Video base no encontrado en '{local_video_path}' y BASE_VIDEO_URL no está configurada. "
+            f"Configura la variable de entorno BASE_VIDEO_URL en Render con la URL del video "
+            f"(Google Drive o Azure Blob Storage)."
+        )
+        print(f"❌ {error_msg}")
+        raise FileNotFoundError(error_msg)
+    
+    print(f"📥 Descargando video base desde URL...")
+    try:
+        # Crear directorio si no existe
+        os.makedirs(os.path.dirname(local_video_path), exist_ok=True)
+        print(f"   Directorio creado: {os.path.dirname(local_video_path)}")
+        
+        # Si es un link de Google Drive, convertirlo a descarga directa
+        if "drive.google.com" in video_url:
+            video_url = convert_google_drive_link(video_url)
+            print(f"   ✅ Link de Google Drive convertido a descarga directa")
+        
+        # Descargar el video
+        print(f"   Descargando desde: {video_url[:100]}...")
+        response = requests.get(video_url, stream=True, timeout=600)
+        response.raise_for_status()
+        
+        print(f"   ✅ Conexión establecida. Tamaño: {response.headers.get('content-length', 'desconocido')} bytes")
+        
+        # Guardar el video
+        total_size = int(response.headers.get('content-length', 0))
+        downloaded = 0
+        with open(local_video_path, "wb") as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                if chunk:
+                    f.write(chunk)
+                    downloaded += len(chunk)
+                    if total_size > 0:
+                        percent = (downloaded / total_size) * 100
+                        if downloaded % (1024 * 1024) == 0:  # Mostrar cada MB
+                            print(f"   Descargado: {percent:.1f}% ({downloaded // (1024*1024)} MB)")
+        
+        # Verificar que el archivo se descargó correctamente
+        if os.path.exists(local_video_path):
+            file_size = os.path.getsize(local_video_path)
+            print(f"✅ Video base descargado exitosamente: {local_video_path} ({file_size / (1024*1024):.2f} MB)")
+            return local_video_path
+        else:
+            raise FileNotFoundError(f"El archivo no se creó después de la descarga: {local_video_path}")
+            
+    except requests.exceptions.RequestException as e:
+        error_msg = f"Error de red al descargar video base: {str(e)}"
+        print(f"❌ {error_msg}")
+        raise FileNotFoundError(error_msg)
+    except Exception as e:
+        error_msg = f"Error al descargar video base: {str(e)}"
+        print(f"❌ {error_msg}")
+        import traceback
+        traceback.print_exc()
+        raise FileNotFoundError(error_msg)
 
 def get_file_path_safe(filename: str) -> Path:
     safe_name = Path(filename).name
@@ -225,7 +249,28 @@ async def process_video_generation(
         jobs[job_id]["message"] = "🎬 Generando video..."
         
         # Obtener ruta del video base
-        base_video = await get_base_video()
+        try:
+            base_video = await get_base_video()
+        except FileNotFoundError as e:
+            error_msg = f"Error al obtener video base: {str(e)}"
+            print(f"❌ {error_msg}")
+            jobs[job_id]["status"] = "error"
+            jobs[job_id]["message"] = f"❌ Error: {error_msg}"
+            jobs[job_id]["error"] = error_msg
+            # Retornar resultados parciales (sin video)
+            jobs[job_id]["result"] = {
+                "script": script,
+                "audio_url": audio_url,
+                "video_url": None
+            }
+            if local_path:
+                jobs[job_id]["result"]["pdf_name"] = file_id
+                jobs[job_id]["result"]["pdf_blob_url"] = blob_url
+            else:
+                jobs[job_id]["result"]["topic"] = user_additional_input
+            jobs[job_id]["completed_at"] = datetime.now().isoformat()
+            return
+        
         final_video_path = f"output/videos/{file_id}_final_video_{language}.mp4"
         
         print(f"   📹 Base video: {base_video}")
