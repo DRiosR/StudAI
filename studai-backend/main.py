@@ -124,33 +124,71 @@ async def get_base_video() -> str:
             video_url = convert_google_drive_link(video_url)
             print(f"   ✅ Link de Google Drive convertido a descarga directa")
         
-        # Descargar el video
+        # Descargar el video con mejor manejo de errores
         print(f"   Descargando desde: {video_url[:100]}...")
-        response = requests.get(video_url, stream=True, timeout=600)
+        
+        # Intentar descargar con headers para evitar problemas con Google Drive
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        }
+        
+        response = requests.get(video_url, stream=True, timeout=600, headers=headers, allow_redirects=True)
         response.raise_for_status()
         
-        print(f"   ✅ Conexión establecida. Tamaño: {response.headers.get('content-length', 'desconocido')} bytes")
-        
-        # Guardar el video
         total_size = int(response.headers.get('content-length', 0))
-        downloaded = 0
-        with open(local_video_path, "wb") as f:
-            for chunk in response.iter_content(chunk_size=8192):
-                if chunk:
-                    f.write(chunk)
-                    downloaded += len(chunk)
-                    if total_size > 0:
-                        percent = (downloaded / total_size) * 100
-                        if downloaded % (1024 * 1024) == 0:  # Mostrar cada MB
-                            print(f"   Descargado: {percent:.1f}% ({downloaded // (1024*1024)} MB)")
+        print(f"   ✅ Conexión establecida. Tamaño esperado: {total_size / (1024*1024):.2f} MB" if total_size > 0 else "   ✅ Conexión establecida. Tamaño: desconocido")
         
-        # Verificar que el archivo se descargó correctamente
-        if os.path.exists(local_video_path):
-            file_size = os.path.getsize(local_video_path)
+        # Guardar el video con verificación
+        downloaded = 0
+        temp_path = local_video_path + ".tmp"
+        
+        try:
+            with open(temp_path, "wb") as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    if chunk:
+                        f.write(chunk)
+                        downloaded += len(chunk)
+                        if total_size > 0:
+                            percent = (downloaded / total_size) * 100
+                            if downloaded % (1024 * 1024) == 0:  # Mostrar cada MB
+                                print(f"   Descargado: {percent:.1f}% ({downloaded // (1024*1024)} MB)")
+            
+            # Verificar que el archivo se descargó completamente
+            if not os.path.exists(temp_path):
+                raise FileNotFoundError(f"El archivo temporal no se creó: {temp_path}")
+            
+            file_size = os.path.getsize(temp_path)
+            print(f"   📊 Archivo descargado: {file_size / (1024*1024):.2f} MB")
+            
+            # Verificar que el tamaño coincide (si se conoce)
+            if total_size > 0 and abs(file_size - total_size) > 1024:  # Permitir 1KB de diferencia
+                raise IOError(f"El archivo descargado está incompleto. Esperado: {total_size} bytes, Obtenido: {file_size} bytes")
+            
+            # Verificar que es un archivo MP4 válido (al menos debe tener un tamaño mínimo razonable)
+            if file_size < 1024 * 100:  # Menos de 100KB probablemente está corrupto
+                raise IOError(f"El archivo descargado es demasiado pequeño ({file_size} bytes), probablemente está corrupto")
+            
+            # Mover el archivo temporal al destino final
+            if os.path.exists(local_video_path):
+                os.remove(local_video_path)
+            os.rename(temp_path, local_video_path)
+            
             print(f"✅ Video base descargado exitosamente: {local_video_path} ({file_size / (1024*1024):.2f} MB)")
+            
+            # Verificar que el archivo es accesible
+            if not os.path.exists(local_video_path):
+                raise FileNotFoundError(f"El archivo no existe después de mover: {local_video_path}")
+            
             return local_video_path
-        else:
-            raise FileNotFoundError(f"El archivo no se creó después de la descarga: {local_video_path}")
+            
+        except Exception as e:
+            # Limpiar archivo temporal si existe
+            if os.path.exists(temp_path):
+                try:
+                    os.remove(temp_path)
+                except:
+                    pass
+            raise
             
     except requests.exceptions.RequestException as e:
         error_msg = f"Error de red al descargar video base: {str(e)}"
