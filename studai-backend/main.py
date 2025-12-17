@@ -17,6 +17,7 @@ from fastapi import FastAPI, UploadFile, File, Form, Request, HTTPException, Bac
 import os, uuid, shutil, asyncio
 import requests
 import re
+import json
 from typing import Dict, Optional
 from datetime import datetime
 # Importar servicios de IA
@@ -32,8 +33,38 @@ app = FastAPI()
 # SISTEMA DE JOBS PARA PROCESAMIENTO ASINCRONO
 # ============================================================================
 # Almacena el estado de los jobs de generacion de video
-# En produccion, considera usar Redis o una base de datos
-jobs: Dict[str, Dict] = {}
+# Usa persistencia en archivo JSON para sobrevivir reinicios del servidor
+JOBS_FILE = "jobs_state.json"
+
+def load_jobs() -> Dict[str, Dict]:
+    """Carga los jobs desde el archivo JSON si existe"""
+    if os.path.exists(JOBS_FILE):
+        try:
+            with open(JOBS_FILE, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except Exception as e:
+            print(f"⚠️  Error cargando jobs desde archivo: {e}")
+            return {}
+    return {}
+
+def save_jobs(jobs_dict: Dict[str, Dict]):
+    """Guarda los jobs en el archivo JSON"""
+    try:
+        with open(JOBS_FILE, 'w', encoding='utf-8') as f:
+            json.dump(jobs_dict, f, indent=2, ensure_ascii=False)
+    except Exception as e:
+        print(f"⚠️  Error guardando jobs en archivo: {e}")
+
+# Cargar jobs existentes al iniciar
+jobs: Dict[str, Dict] = load_jobs()
+print(f"📦 Jobs cargados al iniciar: {len(jobs)}")
+
+def update_job(job_id: str, updates: Dict):
+    """Actualiza un job y guarda el estado en el archivo"""
+    if job_id not in jobs:
+        jobs[job_id] = {"created_at": datetime.now().isoformat()}
+    jobs[job_id].update(updates)
+    save_jobs(jobs)
 
 # Configurar CORS: permite requests desde frontend local y produccion
 # En produccion, agrega tu dominio de Render o Vercel aqui
@@ -115,7 +146,7 @@ async def get_base_video() -> str:
         error_msg = (
             f"Video base no encontrado en '{local_video_path}' y BASE_VIDEO_URL no está configurada. "
             f"Configura la variable de entorno BASE_VIDEO_URL en Render con la URL del video "
-            f"(Google Drive o Azure Blob Storage)."
+            f"(Supabase Storage, Azure Blob Storage o Google Drive)."
         )
         print(f"❌ {error_msg}")
         raise FileNotFoundError(error_msg)
@@ -154,12 +185,12 @@ async def get_base_video() -> str:
         if 'text/html' in content_type:
             # Es una página HTML, probablemente Google Drive está bloqueando la descarga
             print(f"   ⚠️  Google Drive devolvió HTML. Esto significa que el archivo es demasiado grande o requiere permisos especiales.")
-            print(f"   💡 SOLUCION: Sube el video a Azure Blob Storage y usa esa URL en BASE_VIDEO_URL")
+            print(f"   💡 SOLUCION: Usa Supabase Storage o Azure Blob Storage en BASE_VIDEO_URL")
             raise IOError(
                 "Google Drive está bloqueando la descarga del archivo. "
                 "El archivo puede ser demasiado grande (>100MB) o requiere permisos especiales. "
-                "SOLUCION: Sube el video a Azure Blob Storage y usa esa URL en BASE_VIDEO_URL. "
-                "Ejemplo: BASE_VIDEO_URL=https://studai.blob.core.windows.net/videos/mc1.mp4?[SAS_TOKEN]"
+                "SOLUCION: Usa Supabase Storage o Azure Blob Storage en BASE_VIDEO_URL. "
+                "Ejemplo Supabase: BASE_VIDEO_URL=https://[PROJECT].supabase.co/storage/v1/object/public/[BUCKET]/[FILE]"
             )
         
         total_size = int(response.headers.get('content-length', 0))
@@ -196,7 +227,7 @@ async def get_base_video() -> str:
                         f"El archivo descargado es HTML (página de error de Google Drive), no un video. "
                         f"Tamaño: {file_size} bytes. "
                         f"Google Drive bloquea descargas directas de archivos grandes. "
-                        f"SOLUCION: Sube el video a Azure Blob Storage y usa esa URL en BASE_VIDEO_URL."
+                        f"SOLUCION: Usa Supabase Storage o Azure Blob Storage en BASE_VIDEO_URL."
                     )
                     raise IOError(error_msg)
             
@@ -323,8 +354,10 @@ async def process_video_generation(
     Actualiza el estado del job mientras procesa.
     """
     try:
-        jobs[job_id]["status"] = "processing"
-        jobs[job_id]["message"] = "🎬 Generando video..."
+        update_job(job_id, {
+            "status": "processing",
+            "message": "🎬 Generando video..."
+        })
         
         # Obtener ruta del video base
         try:
@@ -332,21 +365,25 @@ async def process_video_generation(
         except FileNotFoundError as e:
             error_msg = f"Error al obtener video base: {str(e)}"
             print(f"❌ {error_msg}")
-            jobs[job_id]["status"] = "error"
-            jobs[job_id]["message"] = f"❌ Error: {error_msg}"
-            jobs[job_id]["error"] = error_msg
             # Retornar resultados parciales (sin video)
-            jobs[job_id]["result"] = {
+            result = {
                 "script": script,
                 "audio_url": audio_url,
                 "video_url": None
             }
             if local_path:
-                jobs[job_id]["result"]["pdf_name"] = file_id
-                jobs[job_id]["result"]["pdf_blob_url"] = blob_url
+                result["pdf_name"] = file_id
+                result["pdf_blob_url"] = blob_url
             else:
-                jobs[job_id]["result"]["topic"] = user_additional_input
-            jobs[job_id]["completed_at"] = datetime.now().isoformat()
+                result["topic"] = user_additional_input
+            
+            update_job(job_id, {
+                "status": "error",
+                "message": f"❌ Error: {error_msg}",
+                "error": error_msg,
+                "result": result,
+                "completed_at": datetime.now().isoformat()
+            })
             return
         
         final_video_path = f"output/videos/{file_id}_final_video_{language}.mp4"
@@ -368,7 +405,7 @@ async def process_video_generation(
                 raise
 
         print(f"   ⏳ Rendering video (this may take a while)...")
-        jobs[job_id]["message"] = "⏳ Renderizando video (esto puede tardar varios minutos)..."
+        update_job(job_id, {"message": "⏳ Renderizando video (esto puede tardar varios minutos)..."})
         
         # Ejecutar renderizado de video en thread separado
         final_video_burned_path = await asyncio.to_thread(render_video)
@@ -380,45 +417,52 @@ async def process_video_generation(
         file_size = os.path.getsize(final_video_burned_path)
         print(f"   📊 Tamaño del video: {file_size / (1024*1024):.2f} MB")
         
-        jobs[job_id]["message"] = "⬆️ Subiendo video a Azure Blob Storage..."
+        update_job(job_id, {"message": "⬆️ Subiendo video a Azure Blob Storage..."})
         print(f"⬆️ Uploading video to blob storage...")
         video_url = await upload_to_blob(final_video_burned_path, f"videos/{file_id}_final_video_{language}.mp4")
         print(f"✅ Video uploaded: {video_url}")
         
         # Actualizar job con resultados
-        jobs[job_id]["status"] = "completed"
-        jobs[job_id]["message"] = "✅ Video generado exitosamente"
-        jobs[job_id]["result"] = {
+        result = {
             "script": script,
             "audio_url": audio_url,
             "video_url": video_url
         }
         if local_path:
-            jobs[job_id]["result"]["pdf_name"] = file_id
-            jobs[job_id]["result"]["pdf_blob_url"] = blob_url
+            result["pdf_name"] = file_id
+            result["pdf_blob_url"] = blob_url
         else:
-            jobs[job_id]["result"]["topic"] = user_additional_input
+            result["topic"] = user_additional_input
         
-        jobs[job_id]["completed_at"] = datetime.now().isoformat()
+        update_job(job_id, {
+            "status": "completed",
+            "message": "✅ Video generado exitosamente",
+            "result": result,
+            "completed_at": datetime.now().isoformat()
+        })
         
     except Exception as video_error:
         print(f"❌ Error durante generacion de video: {video_error}")
         import traceback
         traceback.print_exc()
-        jobs[job_id]["status"] = "error"
-        jobs[job_id]["message"] = f"❌ Error: {str(video_error)}"
-        jobs[job_id]["error"] = str(video_error)
         # Retornar solo script y audio si falla el video
-        jobs[job_id]["result"] = {
+        result = {
             "script": script,
             "audio_url": audio_url,
             "video_url": None
         }
         if local_path:
-            jobs[job_id]["result"]["pdf_name"] = file_id
-            jobs[job_id]["result"]["pdf_blob_url"] = blob_url
+            result["pdf_name"] = file_id
+            result["pdf_blob_url"] = blob_url
         else:
-            jobs[job_id]["result"]["topic"] = user_additional_input
+            result["topic"] = user_additional_input
+        
+        update_job(job_id, {
+            "status": "error",
+            "message": f"❌ Error: {str(video_error)}",
+            "error": str(video_error),
+            "result": result
+        })
 
 @app.post("/generate/video")
 async def generate_video(
@@ -519,14 +563,13 @@ async def generate_video(
         # Para evitar timeout de Render, retornamos inmediatamente
         # y ejecutamos la generacion de video en background
         job_id = str(uuid.uuid4())
-        jobs[job_id] = {
+        update_job(job_id, {
             "status": "processing",
             "message": "🎬 Generando video en background...",
-            "created_at": datetime.now().isoformat(),
             "script": script,
             "audio_url": audio_url,
             "video_url": None
-        }
+        })
         
         # Ejecutar generacion de video en background
         background_tasks.add_task(
@@ -576,8 +619,22 @@ async def get_video_status(job_id: str):
     Endpoint para verificar el estado de un job de generacion de video.
     El frontend debe hacer polling a este endpoint cada pocos segundos.
     """
+    # Recargar jobs desde el archivo por si el servidor se reinició
+    global jobs
+    jobs = load_jobs()
+    
     if job_id not in jobs:
-        raise HTTPException(status_code=404, detail="Job not found")
+        # Si el job no existe, puede ser que el servidor se reinició
+        # Retornar un error más descriptivo
+        return {
+            "job_id": job_id,
+            "status": "not_found",
+            "message": "⚠️ Job no encontrado. El servidor puede haberse reiniciado.",
+            "result": None,
+            "error": "Job not found. The server may have restarted.",
+            "created_at": None,
+            "completed_at": None
+        }
     
     job = jobs[job_id]
     return {

@@ -1,9 +1,29 @@
-# Como Subir el Video Base a Azure Blob Storage
+# Como Configurar el Video Base
 
 ## Problema
 Google Drive bloquea descargas directas de archivos grandes (>100MB), por lo que no funciona para el video base.
 
-## Solucion: Usar Azure Blob Storage
+## Solucion: Usar Supabase Storage (Recomendado)
+
+### Opcion 1: Supabase Storage (Mas Facil)
+
+1. Sube tu video `mc1.mp4` a Supabase Storage en un bucket publico
+2. Obtén la URL pública del video (formato: `https://[PROJECT].supabase.co/storage/v1/object/public/[BUCKET]/[FILE]`)
+3. Configura en Render:
+   ```
+   BASE_VIDEO_URL=https://fdfmtjjeylzznldkrqwl.supabase.co/storage/v1/object/public/studia/1216.mp4
+   ```
+4. Guarda y reinicia el servicio
+
+**Ventajas:**
+- ✅ URLs directas y confiables
+- ✅ Sin limites de tamano
+- ✅ Facil de configurar
+- ✅ Sin necesidad de tokens o SAS
+
+---
+
+## Solucion Alternativa: Usar Azure Blob Storage
 
 ### Paso 1: Subir el video a Azure Blob Storage
 

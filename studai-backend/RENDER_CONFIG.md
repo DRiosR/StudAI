@@ -69,18 +69,17 @@ FFMPEG_PATH=/usr/bin/ffmpeg
 
 ### Video Base (REQUERIDO para generacion de video)
 ```
-BASE_VIDEO_URL=https://drive.google.com/file/d/TU_FILE_ID/view?usp=drive_link
+BASE_VIDEO_URL=https://fdfmtjjeylzznldkrqwl.supabase.co/storage/v1/object/public/studia/1216.mp4
 ```
 **IMPORTANTE:** Esta variable es REQUERIDA para generar videos. Puedes usar:
-- **Google Drive:** Link público del video (se convertirá automáticamente a descarga directa)
+- **Supabase Storage:** URL pública del video (recomendado, ejemplo arriba)
 - **Azure Blob Storage:** URL SAS del video base
-- **Cualquier URL pública:** Que permita descarga directa del archivo MP4
+- **Google Drive:** Link público del video (puede tener problemas con archivos grandes)
 
-**Ejemplo con Google Drive:**
-1. Sube tu video base a Google Drive
-2. Haz clic derecho > "Obtener enlace" > "Cualquiera con el enlace"
-3. Copia el link completo (ej: `https://drive.google.com/file/d/1iLsFRXaOGlhc0_79d14Svx7T0JiG2xuH/view?usp=drive_link`)
-4. Pega ese link en `BASE_VIDEO_URL`
+**Ejemplo con Supabase Storage:**
+1. Sube tu video base a Supabase Storage en un bucket público
+2. Obtén la URL pública del video
+3. Pega esa URL en `BASE_VIDEO_URL` (ejemplo arriba)
 
 ---
 
