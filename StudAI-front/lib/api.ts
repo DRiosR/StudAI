@@ -42,4 +42,34 @@ async function generateVideo(input: Input): Promise<GeneratedVideoResult> {
   }
 }
 
+export async function pollVideoStatus(jobId: string): Promise<GeneratedVideoResult> {
+  const STATUS_ENDPOINT = `${ENDPOINT}/generate/video/status/${jobId}`;
+  
+  return new Promise((resolve, reject) => {
+    const poll = async () => {
+      try {
+        const response = await axios.get(STATUS_ENDPOINT);
+        const status = response.data;
+        
+        console.log("Polling status:", status);
+        
+        if (status.status === "completed") {
+          // Obtener resultados completos
+          const resultResponse = await axios.get(`${ENDPOINT}/generate/video/result/${jobId}`);
+          resolve(resultResponse.data);
+        } else if (status.status === "error") {
+          reject(new Error(status.error || "Error generando video"));
+        } else {
+          // Seguir haciendo polling cada 2 segundos
+          setTimeout(poll, 2000);
+        }
+      } catch (err: any) {
+        reject(err);
+      }
+    };
+    
+    poll();
+  });
+}
+
 export default generateVideo;

@@ -9,6 +9,7 @@ import { useSearchParams } from 'next/navigation';
 
 export default function VideoOutputPage() {
   const [result, setResult] = useState<GeneratedVideoResult | null>(null);
+  const [isPolling, setIsPolling] = useState(false);
   const searchParams = useSearchParams();
 
   useEffect(() => {
@@ -22,16 +23,70 @@ export default function VideoOutputPage() {
         try {
           sessionStorage.setItem('studaiLastResult', JSON.stringify(parsed));
         } catch {}
+        
+        // Si hay job_id y no hay video_url, hacer polling
+        if (parsed.job_id && !parsed.video_url) {
+          setIsPolling(true);
+          pollForVideo(parsed.job_id);
+        }
         return;
       }
       const stored = sessionStorage.getItem('studaiLastResult');
       if (stored) {
-        setResult(JSON.parse(stored));
+        const parsed = JSON.parse(stored) as GeneratedVideoResult;
+        setResult(parsed);
+        
+        // Si hay job_id y no hay video_url, hacer polling
+        if (parsed.job_id && !parsed.video_url) {
+          setIsPolling(true);
+          pollForVideo(parsed.job_id);
+        }
       }
     } catch (e) {
       console.warn('Failed to read result from sessionStorage', e);
     }
   }, [searchParams]);
+
+  const pollForVideo = async (jobId: string) => {
+    const ENDPOINT = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+    const STATUS_ENDPOINT = `${ENDPOINT}/generate/video/status/${jobId}`;
+    
+    const poll = async () => {
+      try {
+        const response = await fetch(STATUS_ENDPOINT);
+        const status = await response.json();
+        
+        console.log("Polling status:", status);
+        
+        if (status.status === "completed" && status.result) {
+          // Actualizar resultado con video_url
+          const updatedResult = {
+            ...result!,
+            ...status.result,
+            video_url: status.result.video_url
+          };
+          setResult(updatedResult);
+          setIsPolling(false);
+          try {
+            sessionStorage.setItem('studaiLastResult', JSON.stringify(updatedResult));
+          } catch (e) {
+            console.warn('Failed to update sessionStorage', e);
+          }
+        } else if (status.status === "error") {
+          console.error("Error generando video:", status.error);
+          setIsPolling(false);
+        } else {
+          // Seguir haciendo polling cada 2 segundos
+          setTimeout(poll, 2000);
+        }
+      } catch (err) {
+        console.error("Error en polling:", err);
+        setIsPolling(false);
+      }
+    };
+    
+    poll();
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-slate-900 to-black relative overflow-hidden">
@@ -110,11 +165,28 @@ export default function VideoOutputPage() {
                 <Video className="w-6 h-6 text-pink-400" />
                 <h3 className="text-lg font-semibold text-white">Final Video</h3>
               </div>
-              <video
-                controls
-                src={result.video_url}
-                className="w-full rounded-2xl border border-white/10"
-              />
+              {result.video_url ? (
+                <div className="flex justify-center">
+                  <video
+                    controls
+                    src={result.video_url}
+                    className="max-w-full max-h-[600px] rounded-2xl border border-white/10"
+                    style={{ width: 'auto', height: 'auto' }}
+                  />
+                </div>
+              ) : isPolling ? (
+                <div className="w-full h-64 flex items-center justify-center rounded-2xl border border-white/10 bg-black/20">
+                  <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-400 mx-auto mb-4"></div>
+                    <p className="text-white/80">Generando video...</p>
+                    <p className="text-white/50 text-sm mt-2">Esto puede tardar unos minutos</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="w-full h-64 flex items-center justify-center rounded-2xl border border-white/10 bg-black/20">
+                  <p className="text-white/60">Video no disponible</p>
+                </div>
+              )}
             </motion.div>
 
             <div className="pt-4">

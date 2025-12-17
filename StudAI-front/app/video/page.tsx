@@ -77,19 +77,67 @@ export default function VideoPage() {
       console.log('📦 API Result recibido:', apiResult);
       console.log('🎵 Audio URL:', apiResult.audio_url);
       console.log('🎬 Video URL:', apiResult.video_url);
+      console.log('🆔 Job ID:', apiResult.job_id);
 
-      setShowConfetti(true);
-      if (audioRef.current) {
-        audioRef.current.play().catch((err) => console.log('Audio error:', err));
+      // Si hay un job_id, significa que el video se está generando en background
+      if (apiResult.job_id && !apiResult.video_url) {
+        // Hacer polling hasta que el video esté listo
+        console.log('⏳ Video generándose en background, iniciando polling...');
+        setStage('polling');
+        
+        try {
+          const { pollVideoStatus } = await import('@/lib/api');
+          const finalResult = await pollVideoStatus(apiResult.job_id);
+          
+          console.log('✅ Video generado:', finalResult);
+          
+          // Combinar resultados
+          const completeResult = {
+            ...apiResult,
+            ...finalResult,
+            video_url: finalResult.video_url
+          };
+          
+          setShowConfetti(true);
+          if (audioRef.current) {
+            audioRef.current.play().catch((err) => console.log('Audio error:', err));
+          }
+          try {
+            sessionStorage.setItem('studaiLastResult', JSON.stringify(completeResult));
+          } catch (e) {
+            console.warn('Failed to store result in sessionStorage', e);
+          }
+          const encoded = encodeURIComponent(JSON.stringify(completeResult));
+          router.push(`/video/output?result=${encoded}`);
+          setTimeout(() => setShowConfetti(false), 3000);
+        } catch (pollError) {
+          console.error('Error en polling:', pollError);
+          // Aún así, redirigir con los resultados parciales
+          setShowConfetti(true);
+          try {
+            sessionStorage.setItem('studaiLastResult', JSON.stringify(apiResult));
+          } catch (e) {
+            console.warn('Failed to store result in sessionStorage', e);
+          }
+          const encoded = encodeURIComponent(JSON.stringify(apiResult));
+          router.push(`/video/output?result=${encoded}`);
+          setTimeout(() => setShowConfetti(false), 3000);
+        }
+      } else {
+        // Video ya está listo (compatibilidad con versión anterior)
+        setShowConfetti(true);
+        if (audioRef.current) {
+          audioRef.current.play().catch((err) => console.log('Audio error:', err));
+        }
+        try {
+          sessionStorage.setItem('studaiLastResult', JSON.stringify(apiResult));
+        } catch (e) {
+          console.warn('Failed to store result in sessionStorage', e);
+        }
+        const encoded = encodeURIComponent(JSON.stringify(apiResult));
+        router.push(`/video/output?result=${encoded}`);
+        setTimeout(() => setShowConfetti(false), 3000);
       }
-      try {
-        sessionStorage.setItem('studaiLastResult', JSON.stringify(apiResult));
-      } catch (e) {
-        console.warn('Failed to store result in sessionStorage', e);
-      }
-      const encoded = encodeURIComponent(JSON.stringify(apiResult));
-      router.push(`/video/output?result=${encoded}`);
-      setTimeout(() => setShowConfetti(false), 3000);
     } catch (error) {
       console.error('Failed to generate video:', error);
       setIsGenerating(false);
