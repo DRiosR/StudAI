@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { FileText, Volume2, Video, ArrowLeft, Sparkles } from 'lucide-react';
+import { FileText, Video, ArrowLeft, Sparkles } from 'lucide-react';
 import type { GeneratedVideoResult } from '@/models/video_output';
 import { useSearchParams } from 'next/navigation';
 
@@ -18,7 +18,6 @@ export default function VideoOutputPage() {
         const decoded = decodeURIComponent(urlParam);
         const parsed = JSON.parse(decoded) as GeneratedVideoResult;
         console.log('📥 Resultado parseado desde URL:', parsed);
-        console.log('🎵 Audio URL en resultado:', parsed.audio_url);
         setResult(parsed);
         try {
           sessionStorage.setItem('studaiLastResult', JSON.stringify(parsed));
@@ -101,58 +100,22 @@ export default function VideoOutputPage() {
               )}
             </motion.div>
 
-            <div className="grid md:grid-cols-2 gap-6">
-              <motion.div
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.4, delay: 0.15 }}
-                className="bg-black/40 backdrop-blur-md border border-white/10 rounded-3xl p-6"
-              >
-                <div className="flex items-center gap-3 mb-4">
-                  <Volume2 className="w-6 h-6 text-purple-400" />
-                  <h3 className="text-lg font-semibold text-white">Audio Track</h3>
-                </div>
-                <audio
-                  controls
-                  src={result.audio_url}
-                  className="w-full"
-                  crossOrigin="anonymous"
-                  preload="auto"
-                  onError={(e) => {
-                    console.error('❌ Error al cargar audio:', e);
-                    console.error('URL del audio:', result.audio_url);
-                  }}
-                  onLoadStart={() => {
-                    console.log('⏳ Cargando audio desde:', result.audio_url);
-                  }}
-                  onCanPlay={() => {
-                    console.log('✅ Audio listo para reproducir');
-                  }}
-                />
-                {result.audio_url && (
-                  <div className="mt-2 text-xs text-white/40 break-all">
-                    URL: {result.audio_url.substring(0, 100)}...
-                  </div>
-                )}
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, x: 10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.4, delay: 0.2 }}
-                className="bg-black/40 backdrop-blur-md border border-white/10 rounded-3xl p-6"
-              >
-                <div className="flex items-center gap-3 mb-4">
-                  <Video className="w-6 h-6 text-pink-400" />
-                  <h3 className="text-lg font-semibold text-white">Final Video</h3>
-                </div>
-                <video
-                  controls
-                  src={result.video_url}
-                  className="w-full rounded-2xl border border-white/10"
-                />
-              </motion.div>
-            </div>
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.15 }}
+              className="bg-black/40 backdrop-blur-md border border-white/10 rounded-3xl p-6"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <Video className="w-6 h-6 text-pink-400" />
+                <h3 className="text-lg font-semibold text-white">Final Video</h3>
+              </div>
+              <video
+                controls
+                src={result.video_url}
+                className="w-full rounded-2xl border border-white/10"
+              />
+            </motion.div>
 
             <div className="pt-4">
               <Link

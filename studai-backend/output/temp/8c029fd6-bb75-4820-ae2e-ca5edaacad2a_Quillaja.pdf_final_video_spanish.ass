@@ -1,0 +1,36 @@
+[Script Info]
+Title: Subtitles
+ScriptType: v4.00+
+WrapStyle: 0
+PlayResX: 1080
+PlayResY: 1920
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Gilroy-Bold,56,&H00FFFFFF,&H00FFFFFF,&H00000000,&H80000000,-1,0,0,0,100,100,0,0,1,4,2,5,10,10,50,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,00:00:00.16,00:00:03.12,Default,,0,0,0,,En este breve análisis examinaremos la estabilidad y los riesgos
+Dialogue: 0,00:00:03.12,00:00:06.32,Default,,0,0,0,,asociados a la adulteración del extracto de Yuka chi y
+Dialogue: 0,00:00:06.32,00:00:08.48,Default,,0,0,0,,las prácticas que garantizan su autenticidad.
+Dialogue: 0,00:00:09.03,00:00:12.51,Default,,0,0,0,,La presión comercial ha incentivado la incorporación de aditivos económicos
+Dialogue: 0,00:00:12.51,00:00:15.19,Default,,0,0,0,,como jarabe de maíz para elevar el grado Briggs o
+Dialogue: 0,00:00:15.19,00:00:18.23,Default,,0,0,0,,extractos de quillaja de baja calidad para aparentar mayor contenido
+Dialogue: 0,00:00:18.23,00:00:19.35,Default,,0,0,0,,de saponinas.
+Dialogue: 0,00:00:19.76,00:00:23.19,Default,,0,0,0,,Estas alteraciones no aumentan la funcionalidad y, por el contrario,
+Dialogue: 0,00:00:23.28,00:00:27.51,Default,,0,0,0,,introducen azúcares fermentables y contaminación microbiana que favorecen la fermentación.
+Dialogue: 0,00:00:28.46,00:00:32.42,Default,,0,0,0,,El metabolismo microbiano de azúcares genera dióxido de carbono, acumulación
+Dialogue: 0,00:00:32.42,00:00:35.42,Default,,0,0,0,,de presión y dilatación o ruptura de contenedores IBC durante
+Dialogue: 0,00:00:35.42,00:00:36.93,Default,,0,0,0,,transporte y almacenamiento.
+Dialogue: 0,00:00:37.42,00:00:41.65,Default,,0,0,0,,La detección de adulterantes se realiza mediante HPLC y lcms
+Dialogue: 0,00:00:41.82,00:00:46.14,Default,,0,0,0,,que revelan picos no característicos, saponinas, triterpenoides de quillaja o
+Dialogue: 0,00:00:46.14,00:00:49.82,Default,,0,0,0,,fragmentos azucarados polimerizados, incluso a niveles de 1 a 5%.
+Dialogue: 0,00:00:50.46,00:00:54.38,Default,,0,0,0,,Para garantizar estabilidad, un productor íntegro controla temperatura y pH
+Dialogue: 0,00:00:54.46,00:00:58.70,Default,,0,0,0,,de extracción, aplica pasteurización, evita diluciones con azúcares o fuentes
+Dialogue: 0,00:00:58.70,00:01:03.03,Default,,0,0,0,,externas de saponinas, utiliza conservantes alimentarios cuando procede y mantiene
+Dialogue: 0,00:01:03.03,00:01:04.43,Default,,0,0,0,,trazabilidad completa.
+Dialogue: 0,00:01:04.84,00:01:08.56,Default,,0,0,0,,En conclusión, la integridad química y microbiológica es esencial para
+Dialogue: 0,00:01:08.56,00:01:11.59,Default,,0,0,0,,la seguridad, la consistencia y el rendimiento del extracto de
+Dialogue: 0,00:01:11.59,00:01:12.43,Default,,0,0,0,,yuka.
