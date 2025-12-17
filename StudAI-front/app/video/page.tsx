@@ -13,7 +13,6 @@ import { useRouter } from 'next/navigation';
 import generateVideo from '@/lib/api';
 import type { Input } from '@/models/input';
 import { LoaderFive } from '@/components/ui/loader';
-import { FlappyBird } from '@/components/games/FlappyBird';
 
 export default function VideoPage() {
   const router = useRouter();
@@ -112,12 +111,18 @@ export default function VideoPage() {
           <div className="flex flex-col items-center gap-5 w-full px-4">
             <div className="flex flex-col items-center gap-2">
               <LoaderFive text={`${loaderMessages[loaderIndex]} — ${elapsedSeconds}s`} />
-              <p className="text-white/70 text-sm">We’re generating your video — kill time with a mini‑game</p>
-            </div>
-            <div className="w-full max-w-[880px]">
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
-                <FlappyBird />
-              </div>
+              <p className="text-white/70 text-sm">
+                {elapsedSeconds < 30 
+                  ? `Processing your video... ${elapsedSeconds}s` 
+                  : elapsedSeconds < 60
+                  ? `Still working... ${Math.floor(elapsedSeconds / 60)}m ${elapsedSeconds % 60}s`
+                  : `This may take a few minutes... ${Math.floor(elapsedSeconds / 60)}m ${elapsedSeconds % 60}s`}
+              </p>
+              {elapsedSeconds > 20 && (
+                <p className="text-white/50 text-xs mt-1">
+                  Video processing can take 1-3 minutes. Please wait...
+                </p>
+              )}
             </div>
           </div>
         </div>

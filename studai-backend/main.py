@@ -330,6 +330,11 @@ async def generate_video(file: UploadFile | None = File(None), user_additional_i
         # PASO 7: RETORNAR RESULTADOS
         # El agente ha completado su objetivo
         # ====================================================================
+        print(f"📤 Retornando resultados:")
+        print(f"   📝 Script length: {len(script)} caracteres")
+        print(f"   🎵 Audio URL: {audio_url}")
+        print(f"   🎬 Video URL: {video_url if video_url else 'None'}")
+        
         result = {
             "script": script,
             "audio_url": audio_url,

@@ -116,6 +116,8 @@ export default function VideoOutputPage() {
                   controls
                   src={result.audio_url}
                   className="w-full"
+                  crossOrigin="anonymous"
+                  preload="auto"
                   onError={(e) => {
                     console.error('❌ Error al cargar audio:', e);
                     console.error('URL del audio:', result.audio_url);

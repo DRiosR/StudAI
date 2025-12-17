@@ -108,8 +108,76 @@ def videoEditor(video_path: str, audio_path: str, language: str, output_path: st
     base_edit_export(video_path, audio_path, temp_video_path)
     print(f"✅ Video generado: {temp_video_path}")
 
-    # Retornar la ruta del video editado (sin subtitulos quemados)
-    return temp_video_path
+    # ========================================================================
+    # GENERAR Y QUEMAR SUBTITULOS
+    # ========================================================================
+    print(f"\n{'='*60}")
+    print(f"📝 INICIANDO GENERACION DE SUBTITULOS")
+    print(f"{'='*60}")
+    
+    # Verificar que AssemblyAI API key esté configurada
+    assemblyai_key = os.getenv("ASSEMBLYAI_API_KEY")
+    if not assemblyai_key:
+        print(f"⚠️  ASSEMBLYAI_API_KEY no configurada en variables de entorno")
+        print(f"   Saltando generacion de subtitulos...")
+        print(f"   Para activar subtitulos, configura ASSEMBLYAI_API_KEY")
+        return temp_video_path
+    
+    print(f"✅ ASSEMBLYAI_API_KEY encontrada: {assemblyai_key[:10]}...")
+    
+    try:
+        
+        # Transcribir audio usando IA (AssemblyAI)
+        print(f"   🎤 Transcribiendo audio con AssemblyAI...")
+        text, words = transcribe_audio(audio_path, language)
+        
+        if not words or len(words) == 0:
+            print(f"⚠️  No se obtuvieron palabras de la transcripción. Saltando subtítulos...")
+            return temp_video_path
+        
+        print(f"   ✅ Obtuvidas {len(words)} palabras para subtítulos")
+        
+        # Crear archivo SRT
+        print(f"   📄 Creando archivo SRT...")
+        srt_path = os.path.join("output/temp", f"{final_basename}.srt")
+        create_srt(words, srt_path, max_words_per_subtitle=10)
+        
+        # Verificar que el archivo SRT se creó
+        if not os.path.exists(srt_path):
+            raise FileNotFoundError(f"SRT file not created: {srt_path}")
+        print(f"   ✅ Archivo SRT creado: {srt_path}")
+        
+        # Convertir SRT a ASS (formato para quemar subtítulos)
+        print(f"   🔄 Convirtiendo SRT a ASS...")
+        ass_path = os.path.join("output/temp", f"{final_basename}.ass")
+        # Usar fuente más grande (56px) para mejor legibilidad en videos verticales
+        convert_srt_to_ass(srt_path, ass_path, font_name=DEFAULT_FONT_NAME, font_size=56)
+        
+        # Verificar que el archivo ASS se creó
+        if not os.path.exists(ass_path):
+            raise FileNotFoundError(f"ASS file not created: {ass_path}")
+        print(f"   ✅ Archivo ASS creado: {ass_path}")
+        
+        # Verificar que el directorio de fuentes existe
+        if not os.path.exists(FONTS_DIR):
+            print(f"⚠️  Directorio de fuentes no encontrado: {FONTS_DIR}")
+            print(f"   Creando directorio...")
+            os.makedirs(FONTS_DIR, exist_ok=True)
+        
+        # Quemar subtítulos en el video usando FFmpeg
+        print(f"🔥 Quemando subtítulos en el video con FFmpeg...")
+        final_video_with_subs = output_path if output_path else os.path.join("output/videos", f"{final_basename}_final.mp4")
+        burn_subtitles_ffmpeg(temp_video_path, ass_path, final_video_with_subs, FONTS_DIR)
+        print(f"✅ Video con subtítulos generado: {final_video_with_subs}")
+        
+        return final_video_with_subs
+    except Exception as subtitle_error:
+        print(f"⚠️  Error al generar subtítulos: {subtitle_error}")
+        print(f"   Continuando sin subtítulos...")
+        import traceback
+        traceback.print_exc()
+        # Si falla, retornar video sin subtítulos
+        return temp_video_path
 
 
 # ============================================================================
@@ -299,8 +367,16 @@ def transcribe_audio(audio_path: str, language: str) -> Tuple[str, list]:
 
     # Extraer el texto transcrito y los timestamps de palabras
     # Los timestamps permiten sincronizar subtitulos con el audio
+    # AssemblyAI devuelve timestamps en milisegundos
     text = transcript.text or ""
-    words = [{"start": w.start, "end": w.end, "text": w.text} for w in (transcript.words or [])]
+    words = []
+    for w in (transcript.words or []):
+        # AssemblyAI devuelve timestamps en milisegundos
+        words.append({
+            "start": int(w.start),  # Ya está en milisegundos
+            "end": int(w.end),      # Ya está en milisegundos
+            "text": w.text
+        })
     print(f"   ✅ Transcription completed: {len(text)} characters, {len(words)} words")
     return text, words
 
@@ -314,16 +390,60 @@ def map_language(language: str) -> str:
         return "en"
 
 
-def create_srt(words: list, srt_file_path: str) -> None:
-    """Create SRT file from word-level information."""
+def create_srt(words: list, srt_file_path: str, max_words_per_subtitle: int = 8) -> None:
+    """
+    Create SRT file from word-level information.
+    Agrupa palabras en frases para subtítulos más legibles.
+    
+    Parametros:
+        words (list): Lista de palabras con timestamps
+        srt_file_path (str): Ruta donde guardar el archivo SRT
+        max_words_per_subtitle (int): Máximo de palabras por subtítulo (default: 8)
+    """
     os.makedirs(os.path.dirname(srt_file_path), exist_ok=True)
+    
+    if not words:
+        print("   ⚠️  No words provided for subtitles")
+        return
+    
+    # AssemblyAI devuelve timestamps en milisegundos
+    subtitle_index = 1
     with open(srt_file_path, 'w', encoding='utf-8') as srt_file:
-        for i, w in enumerate(words):
-            start = format_time(w["start"])
-            end = format_time(w["end"])
-            text = w["text"].replace(",", "").replace(".", "").lower()
-            srt_file.write(f"{i + 1}\n{start} --> {end}\n{text}\n\n")
-    print(f"   ✅ SRT file written: {srt_file_path} ({len(words)} entries)")
+        i = 0
+        while i < len(words):
+            # Agrupar palabras en frases (máximo max_words_per_subtitle palabras)
+            subtitle_words = []
+            start_time_ms = words[i]["start"]  # Ya está en milisegundos
+            end_time_ms = words[i]["end"]
+            
+            # Agrupar palabras hasta max_words_per_subtitle o hasta encontrar puntuación
+            j = i
+            while j < len(words) and len(subtitle_words) < max_words_per_subtitle:
+                word = words[j]
+                subtitle_words.append(word["text"])
+                end_time_ms = word["end"]  # Actualizar tiempo final
+                
+                # Si la palabra termina con puntuación fuerte, terminar la frase aquí
+                if word["text"].strip().endswith(('.', '!', '?')):
+                    j += 1
+                    break
+                
+                j += 1
+            
+            # Formatear tiempos (format_time espera milisegundos)
+            start = format_time(int(start_time_ms))
+            end = format_time(int(end_time_ms))
+            
+            # Crear texto del subtítulo (mantener formato original)
+            subtitle_text = " ".join(subtitle_words)
+            
+            # Escribir entrada SRT
+            srt_file.write(f"{subtitle_index}\n{start} --> {end}\n{subtitle_text}\n\n")
+            subtitle_index += 1
+            
+            i = j
+    
+    print(f"   ✅ SRT file written: {srt_file_path} ({subtitle_index - 1} subtitle entries from {len(words)} words)")
 
 
 def format_time(ms: int) -> str:
@@ -335,9 +455,19 @@ def format_time(ms: int) -> str:
     return f"{hours:02}:{minutes:02}:{seconds:02},{milliseconds:03}"
 
 
-def convert_srt_to_ass(srt_path: str, ass_path: str, font_name: str = "Gilroy-Bold", font_size: int = 24) -> None:
-    """Convert SRT to ASS format with centered styling."""
+def convert_srt_to_ass(srt_path: str, ass_path: str, font_name: str = "Gilroy-Bold", font_size: int = 56) -> None:
+    """
+    Convert SRT to ASS format with centered styling.
+    
+    Parametros:
+        srt_path (str): Ruta al archivo SRT
+        ass_path (str): Ruta donde guardar el archivo ASS
+        font_name (str): Nombre de la fuente (default: "Gilroy-Bold")
+        font_size (int): Tamaño de fuente en píxeles (default: 56 para mejor legibilidad en videos verticales)
+    """
     # ASS header with centered alignment
+    # Outline más grueso (4 en lugar de 3) y shadow más visible (2) para mejor legibilidad
+    # MarginV más grande (50 en lugar de 10) para posicionar subtítulos más abajo
     ass_header = f"""[Script Info]
 Title: Subtitles
 ScriptType: v4.00+
@@ -348,7 +478,7 @@ ScaledBorderAndShadow: yes
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Default,{font_name},{font_size},&H00FFFFFF,&H00FFFFFF,&H00000000,&H64000000,-1,0,0,0,100,100,0,0,1,3,0,5,10,10,10,1
+Style: Default,{font_name},{font_size},&H00FFFFFF,&H00FFFFFF,&H00000000,&H80000000,-1,0,0,0,100,100,0,0,1,4,2,5,10,10,50,1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
@@ -459,7 +589,26 @@ def burn_subtitles_ffmpeg(
         output_abs
     ]
 
-    subprocess.run(cmd, check=True)
+    print(f"   🔧 Ejecutando FFmpeg: {' '.join(cmd[:3])} ... [video filter] ... {output_abs}")
+    try:
+        result = subprocess.run(
+            cmd, 
+            check=True, 
+            capture_output=True, 
+            text=True,
+            timeout=300  # 5 minutos timeout
+        )
+        if result.stdout:
+            print(f"   📝 FFmpeg stdout: {result.stdout[:200]}...")
+    except subprocess.TimeoutExpired:
+        raise RuntimeError("FFmpeg timeout after 5 minutes")
+    except subprocess.CalledProcessError as e:
+        print(f"   ❌ FFmpeg error (exit code {e.returncode}):")
+        if e.stdout:
+            print(f"   stdout: {e.stdout[:500]}")
+        if e.stderr:
+            print(f"   stderr: {e.stderr[:500]}")
+        raise
 
 if __name__ == "__main__":
     # Simple manual test (requires ASSEMBLYAI_API_KEY and files to exist)
