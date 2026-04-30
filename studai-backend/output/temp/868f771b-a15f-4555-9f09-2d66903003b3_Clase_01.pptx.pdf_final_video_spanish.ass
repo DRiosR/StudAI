@@ -1,0 +1,37 @@
+[Script Info]
+Title: Subtitles
+ScriptType: v4.00+
+WrapStyle: 0
+PlayResX: 1080
+PlayResY: 1920
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Gilroy-Bold,56,&H00FFFFFF,&H00FFFFFF,&H00000000,&H80000000,-1,0,0,0,100,100,0,0,1,4,2,5,10,10,50,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,00:00:00.24,00:00:03.08,Default,,0,0,0,,¿Güey, sabías que la inteligencia artificial ya no es solo
+Dialogue: 0,00:00:03.08,00:00:04.63,Default,,0,0,0,,cosa de películas futuristas?
+Dialogue: 0,00:00:04.79,00:00:07.28,Default,,0,0,0,,Es algo que está cambiando el mundo todos los días
+Dialogue: 0,00:00:07.28,00:00:08.88,Default,,0,0,0,,y en serio está cañón.
+Dialogue: 0,00:00:08.88,00:00:12.11,Default,,0,0,0,,Desde entrenar máquinas para reconocer tu cara hasta crear asistentes
+Dialogue: 0,00:00:12.11,00:00:15.40,Default,,0,0,0,,virtuales que responden tus mensajes, la IA está en todos
+Dialogue: 0,00:00:15.40,00:00:15.91,Default,,0,0,0,,lados.
+Dialogue: 0,00:00:16.16,00:00:19.60,Default,,0,0,0,,Básicamente usa técnicas como Machine Learning y Deep Learning para
+Dialogue: 0,00:00:19.60,00:00:21.76,Default,,0,0,0,,aprender y mejorar sin que nadie le diga qué hacer.
+Dialogue: 0,00:00:21.83,00:00:22.71,Default,,0,0,0,,¿Te imaginas?
+Dialogue: 0,00:00:22.87,00:00:26.16,Default,,0,0,0,,Y sí, puede sonar complicado, pero no todo es perfecto.
+Dialogue: 0,00:00:26.76,00:00:29.92,Default,,0,0,0,,¿Recuerdas el chatbot de Microsoft que terminó siendo un desastre
+Dialogue: 0,00:00:29.92,00:00:32.39,Default,,0,0,0,,en Twitter o el Face ID de Apple que una
+Dialogue: 0,00:00:32.39,00:00:34.07,Default,,0,0,0,,máscara D pudo hackear?
+Dialogue: 0,00:00:34.07,00:00:35.79,Default,,0,0,0,,Pero no se trata solo de los false.
+Dialogue: 0,00:00:35.88,00:00:38.52,Default,,0,0,0,,La clave aquí es desarrollar IA responsable.
+Dialogue: 0,00:00:38.75,00:00:41.47,Default,,0,0,0,,Esto incluye pensar en la ética, evitar sesgos en los
+Dialogue: 0,00:00:41.47,00:00:44.52,Default,,0,0,0,,algoritmos y asegurarnos de que la tecnología funcione para todos,
+Dialogue: 0,00:00:44.67,00:00:46.03,Default,,0,0,0,,sin excluir a nadie.
+Dialogue: 0,00:00:46.20,00:00:48.92,Default,,0,0,0,,Así que no solo es tecnología cool, también es un
+Dialogue: 0,00:00:48.92,00:00:50.43,Default,,0,0,0,,reto para hacer las cosas bien.
+Dialogue: 0,00:00:50.60,00:00:53.28,Default,,0,0,0,,¿Y tú, cómo crees que esto puede cambiar tu día
+Dialogue: 0,00:00:53.28,00:00:53.64,Default,,0,0,0,,a día?

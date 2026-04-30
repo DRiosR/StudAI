@@ -1,0 +1,35 @@
+[Script Info]
+Title: Subtitles
+ScriptType: v4.00+
+WrapStyle: 0
+PlayResX: 1080
+PlayResY: 1920
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Gilroy-Bold,56,&H00FFFFFF,&H00FFFFFF,&H00000000,&H80000000,-1,0,0,0,100,100,0,0,1,4,2,5,10,10,50,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,00:00:00.16,00:00:02.87,Default,,0,0,0,,Hoy exploraremos los conceptos fundamentales de la regresión y la
+Dialogue: 0,00:00:02.87,00:00:06.83,Default,,0,0,0,,clasificación en el aprendizaje automático, técnicas esenciales dentro del ámbito
+Dialogue: 0,00:00:06.83,00:00:08.16,Default,,0,0,0,,de la inteligencia artificial.
+Dialogue: 0,00:00:08.40,00:00:11.56,Default,,0,0,0,,La regresión es un enfoque supervisado diseñado para predecir valores
+Dialogue: 0,00:00:11.56,00:00:15.00,Default,,0,0,0,,continuos como el peso o el salario, modelando la relación
+Dialogue: 0,00:00:15.00,00:00:18.48,Default,,0,0,0,,entre una variable dependiente y una o más variables independientes.
+Dialogue: 0,00:00:18.64,00:00:22.03,Default,,0,0,0,,Entre sus tipos destacan la regresión lineal, utilizada para modelar
+Dialogue: 0,00:00:22.03,00:00:25.28,Default,,0,0,0,,relaciones simples con una función lineal, y la regresión polinomial,
+Dialogue: 0,00:00:25.60,00:00:27.44,Default,,0,0,0,,que captura patrones más complejos.
+Dialogue: 0,00:00:27.60,00:00:30.64,Default,,0,0,0,,Estas herramientas son cruciales cuando los conjuntos de datos se
+Dialogue: 0,00:00:30.64,00:00:32.40,Default,,0,0,0,,relacionan de manera cuantitativa.
+Dialogue: 0,00:00:32.57,00:00:35.60,Default,,0,0,0,,Por otro lado, la clasificación es una técnica supervisada que
+Dialogue: 0,00:00:35.60,00:00:38.81,Default,,0,0,0,,asigna categorías discretas a los datos de entrada, como identificar
+Dialogue: 0,00:00:38.81,00:00:41.45,Default,,0,0,0,,correos electrónicos como spam o no spam.
+Dialogue: 0,00:00:41.92,00:00:45.64,Default,,0,0,0,,De esta forma, algoritmos como máquinas de soporte vectorial, árboles
+Dialogue: 0,00:00:45.64,00:00:48.92,Default,,0,0,0,,de decisión y bosques aleatorios son utilizados para realizar estas
+Dialogue: 0,00:00:48.92,00:00:50.64,Default,,0,0,0,,asignaciones con alta precisión.
+Dialogue: 0,00:00:50.64,00:00:54.13,Default,,0,0,0,,Ambos enfoques son pilares fundamentales en el diseño de sistemas
+Dialogue: 0,00:00:54.13,00:00:54.72,Default,,0,0,0,,inteligentes.
+Dialogue: 0,00:00:55.38,00:00:59.10,Default,,0,0,0,,Con una implementación adecuada, pueden transformar datos crudos en valiosos
+Dialogue: 0,00:00:59.10,00:01:00.25,Default,,0,0,0,,conocimientos prácticos.

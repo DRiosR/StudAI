@@ -1,0 +1,37 @@
+[Script Info]
+Title: Subtitles
+ScriptType: v4.00+
+WrapStyle: 0
+PlayResX: 1080
+PlayResY: 1920
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Gilroy-Bold,56,&H00FFFFFF,&H00FFFFFF,&H00000000,&H80000000,-1,0,0,0,100,100,0,0,1,4,2,5,10,10,50,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,00:00:00.16,00:00:02.83,Default,,0,0,0,,¿Alguna vez te has preguntado por qué algunos juegos educativos
+Dialogue: 0,00:00:02.83,00:00:04.00,Default,,0,0,0,,son difíciles de empezar?
+Dialogue: 0,00:00:04.63,00:00:09.00,Default,,0,0,0,,Madquest, por ejemplo, tenía un problema los usuarios no entendían
+Dialogue: 0,00:00:09.00,00:00:10.24,Default,,0,0,0,,qué hacer al abrir la app.
+Dialogue: 0,00:00:10.72,00:00:12.16,Default,,0,0,0,,Pero aquí está la solución.
+Dialogue: 0,00:00:12.16,00:00:13.67,Default,,0,0,0,,Tutoriales interactivos.
+Dialogue: 0,00:00:14.08,00:00:16.55,Default,,0,0,0,,Imagina entrar al juego y que te guíe paso a
+Dialogue: 0,00:00:16.55,00:00:18.00,Default,,0,0,0,,paso en lugar de perderte.
+Dialogue: 0,00:00:18.32,00:00:20.55,Default,,0,0,0,,Ahí es donde la experiencia mejora totalmente.
+Dialogue: 0,00:00:21.28,00:00:22.55,Default,,0,0,0,,Y eso no es todo.
+Dialogue: 0,00:00:23.12,00:00:25.51,Default,,0,0,0,,Sabías que los avatares eran un dolor de cabeza.
+Dialogue: 0,00:00:26.30,00:00:31.35,Default,,0,0,0,,Guardabas cambios, pero nunca sabías si funcionaban la mensajes de
+Dialogue: 0,00:00:31.35,00:00:33.82,Default,,0,0,0,,confirmación simples, rápidos y visibles.
+Dialogue: 0,00:00:34.31,00:00:37.03,Default,,0,0,0,,Pequeños detalles que solucionan grandes frustraciones.
+Dialogue: 0,00:00:37.67,00:00:41.75,Default,,0,0,0,,MacQuest también agregó una cuenta regresiva antes de juegos cronometrados.
+Dialogue: 0,00:00:42.22,00:00:44.78,Default,,0,0,0,,Adiós a las partidas que empiezan sin previo aviso y
+Dialogue: 0,00:00:44.78,00:00:46.14,Default,,0,0,0,,con usuarios desorientados.
+Dialogue: 0,00:00:46.78,00:00:49.90,Default,,0,0,0,,Conclusión Mejorar no siempre significa rehacer todo.
+Dialogue: 0,00:00:50.46,00:00:53.63,Default,,0,0,0,,Con ajustes inteligentes y enfocados, una app puede ir de
+Dialogue: 0,00:00:53.63,00:00:54.71,Default,,0,0,0,,frustrante a funcional.
+Dialogue: 0,00:00:55.38,00:00:56.93,Default,,0,0,0,,MadQuest está evolucionando.
+Dialogue: 0,00:00:56.93,00:00:59.06,Default,,0,0,0,,¿Crees que más apps deberían hacerlo también?
+Dialogue: 0,00:00:59.70,00:01:01.29,Default,,0,0,0,,Dime qué piensas en los comentarios.

@@ -1,0 +1,36 @@
+[Script Info]
+Title: Subtitles
+ScriptType: v4.00+
+WrapStyle: 0
+PlayResX: 1080
+PlayResY: 1920
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Gilroy-Bold,56,&H00FFFFFF,&H00FFFFFF,&H00000000,&H80000000,-1,0,0,0,100,100,0,0,1,4,2,5,10,10,50,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,00:00:00.16,00:00:03.24,Default,,0,0,0,,Hoy hablaremos sobre el aprendizaje no supervisado, una rama del
+Dialogue: 0,00:00:03.24,00:00:06.83,Default,,0,0,0,,aprendizaje automático que permite identificar patrones ocultos en datos sin
+Dialogue: 0,00:00:06.83,00:00:07.59,Default,,0,0,0,,etiquetar.
+Dialogue: 0,00:00:07.59,00:00:11.56,Default,,0,0,0,,A diferencia del aprendizaje supervisado, que requiere datos rotulados, el
+Dialogue: 0,00:00:11.56,00:00:14.96,Default,,0,0,0,,aprendizaje no supervisado opera sin conocer de antemano las categorías
+Dialogue: 0,00:00:14.96,00:00:16.48,Default,,0,0,0,,o los resultados esperados.
+Dialogue: 0,00:00:16.55,00:00:20.00,Default,,0,0,0,,Este enfoque utiliza técnicas como el agrupamiento o clustering, que
+Dialogue: 0,00:00:20.00,00:00:23.19,Default,,0,0,0,,organiza datos en grupos basados en similitudes, y el aprendizaje
+Dialogue: 0,00:00:23.19,00:00:26.32,Default,,0,0,0,,de reglas de asociación, el cual descubre relaciones útiles entre
+Dialogue: 0,00:00:26.32,00:00:28.71,Default,,0,0,0,,diferentes parámetros en grandes conjuntos de datos.
+Dialogue: 0,00:00:29.35,00:00:32.84,Default,,0,0,0,,Además, se aplica la reducción de dimensionalidad, que simplifica los
+Dialogue: 0,00:00:32.84,00:00:36.60,Default,,0,0,0,,datos manteniendo información esencial, facilitando tanto el análisis como la
+Dialogue: 0,00:00:36.60,00:00:37.28,Default,,0,0,0,,visualización.
+Dialogue: 0,00:00:37.60,00:00:41.07,Default,,0,0,0,,Aunque es una herramienta poderosa, enfrenta desafíos como la dificultad
+Dialogue: 0,00:00:41.07,00:00:44.88,Default,,0,0,0,,para evaluar resultados, interpretar los modelos y manejar datos ruidosos
+Dialogue: 0,00:00:44.88,00:00:45.84,Default,,0,0,0,,o incompletos.
+Dialogue: 0,00:00:46.00,00:00:50.56,Default,,0,0,0,,Sin embargo, sus ventajas son no requiere datos etiquetados, puede
+Dialogue: 0,00:00:50.56,00:00:53.00,Default,,0,0,0,,explorar nuevos patrones en los datos y se utiliza en
+Dialogue: 0,00:00:53.00,00:00:56.88,Default,,0,0,0,,diversas aplicaciones, desde segmentación de clientes hasta sistemas de recomendación.
+Dialogue: 0,00:00:57.50,00:01:00.54,Default,,0,0,0,,En conclusión, el aprendizaje no supervisado es fundamental en la
+Dialogue: 0,00:01:00.54,00:01:04.23,Default,,0,0,0,,inteligencia artificial moderna, impulsando el análisis de datos en entornos
+Dialogue: 0,00:01:04.23,00:01:06.23,Default,,0,0,0,,donde las etiquetas no están disponibles.

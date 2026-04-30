@@ -1,0 +1,35 @@
+[Script Info]
+Title: Subtitles
+ScriptType: v4.00+
+WrapStyle: 0
+PlayResX: 1080
+PlayResY: 1920
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Gilroy-Bold,56,&H00FFFFFF,&H00FFFFFF,&H00000000,&H80000000,-1,0,0,0,100,100,0,0,1,4,2,5,10,10,50,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,00:00:00.08,00:00:01.72,Default,,0,0,0,,Hey, are you looking for a way to connect with
+Dialogue: 0,00:00:01.72,00:00:02.96,Default,,0,0,0,,students from across the globe?
+Dialogue: 0,00:00:03.27,00:00:06.79,Default,,0,0,0,,Let me tell you about COIL Collaborative Online International learning
+Dialogue: 0,00:00:06.79,00:00:10.32,Default,,0,0,0,,isn't just another online class, it's a multicultural experience.
+Dialogue: 0,00:00:10.80,00:00:13.67,Default,,0,0,0,,Imagine teaming up with students and professors from different countries,
+Dialogue: 0,00:00:14.00,00:00:17.83,Default,,0,0,0,,working on shared projects and breaking down cultural barriers all
+Dialogue: 0,00:00:17.83,00:00:18.96,Default,,0,0,0,,from your laptop.
+Dialogue: 0,00:00:19.83,00:00:22.87,Default,,0,0,0,,COIL combines virtual exchange with deep collaboration.
+Dialogue: 0,00:00:23.12,00:00:25.96,Default,,0,0,0,,Classes can be fully online or blended with face to
+Dialogue: 0,00:00:25.96,00:00:29.05,Default,,0,0,0,,face sessions at local universities, but the magic happens when
+Dialogue: 0,00:00:29.05,00:00:32.65,Default,,0,0,0,,students collaborate on assignments and problem solving guided by professors
+Dialogue: 0,00:00:32.65,00:00:34.14,Default,,0,0,0,,who co teach from both countries.
+Dialogue: 0,00:00:34.29,00:00:37.42,Default,,0,0,0,,It's not like basic MOOCs or unstructured social media chats.
+Dialogue: 0,00:00:37.57,00:00:41.42,Default,,0,0,0,,This is about building trust, developing solutions and sharing fresh
+Dialogue: 0,00:00:41.42,00:00:42.06,Default,,0,0,0,,perspectives.
+Dialogue: 0,00:00:43.02,00:00:44.21,Default,,0,0,0,,Want to know the best part?
+Dialogue: 0,00:00:44.38,00:00:47.78,Default,,0,0,0,,You'll tackle projects together, present outcomes and reflect on the
+Dialogue: 0,00:00:47.78,00:00:51.34,Default,,0,0,0,,experience, all while sharpening your global and digital skills.
+Dialogue: 0,00:00:51.82,00:00:54.93,Default,,0,0,0,,So ready to build connections that go way beyond borders?
+Dialogue: 0,00:00:55.02,00:00:57.34,Default,,0,0,0,,Check out the COIL model and make the world your
+Dialogue: 0,00:00:57.34,00:00:57.82,Default,,0,0,0,,classroom.

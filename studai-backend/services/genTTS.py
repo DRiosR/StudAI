@@ -16,7 +16,7 @@
 import os  # Para acceder a variables de entorno y crear directorios
 import random  # Para seleccionar voces aleatoriamente
 import asyncio  # Para ejecutar funciones asincronas (async/await)
-from typing import Tuple  # Para tipado: indica que una funcion retorna una tupla
+import re  # Etiquetas de idioma al inicio del guion ([SP], [ES], [EN])
 
 # ============================================================================
 # CARGA DE VARIABLES DE ENTORNO
@@ -220,9 +220,8 @@ async def generate_tts(text: str, gender: str = None, output_path: str = DEFAULT
     # ========================================================================
     # LIMPIEZA DEL TEXTO
     # ========================================================================
-    # Remover etiquetas de idioma ([SP], [EN]) para que TTS no las lea en voz alta
-    # Estas etiquetas son solo para indicar el idioma, no son parte del guion
-    text = text.replace('[SP]', '').replace('[EN]', '')
+    # Remover etiquetas de idioma para que TTS no las lea en voz alta
+    text = _strip_leading_language_tag(text)
 
     # ========================================================================
     # SELECCION DE VOZ NEURAL BASADA EN IDIOMA
@@ -305,6 +304,13 @@ async def generate_tts(text: str, gender: str = None, output_path: str = DEFAULT
     return output_path, language
 
 
+def _strip_leading_language_tag(text: str) -> str:
+    """Quita prefijos tipo [SP], [ES], [EN] (con o sin ':') al inicio del guion."""
+    t = text.strip()
+    t = re.sub(r"^\[(?:SP|ES|EN)\]\s*:?\s*", "", t, flags=re.IGNORECASE)
+    return t.strip()
+
+
 def detect_language(text: str) -> str:
     """
     Detecta el idioma del texto usando procesamiento de lenguaje natural (NLP).
@@ -322,12 +328,15 @@ def detect_language(text: str) -> str:
     Retorna:
         str: 'spanish' o 'english' segun el idioma detectado
     """
-    # Buscar la etiqueta [SP] que indica espanol
-    if '[SP]' in text:
-        return 'spanish'
-    
-    # Si no hay etiqueta o es ingles, tratar como ingles por defecto
-    return 'english'
+    head = text.strip()[:24].upper()
+    # El LLM a veces devuelve [ES]: en lugar de [SP]: — ambos son español
+    if re.match(r"^\[(?:SP|ES)\]", head, re.IGNORECASE):
+        return "spanish"
+    if "[SP]" in text.upper() or "[ES]" in text.upper():
+        return "spanish"
+    if re.match(r"^\[EN\]", head, re.IGNORECASE) or "[EN]" in text.upper():
+        return "english"
+    return "english"
 
 if __name__ == "__main__":
     with open(FILE_PATH, 'r') as file:

@@ -1,0 +1,39 @@
+[Script Info]
+Title: Subtitles
+ScriptType: v4.00+
+WrapStyle: 0
+PlayResX: 1080
+PlayResY: 1920
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Gilroy-Bold,56,&H00FFFFFF,&H00FFFFFF,&H00000000,&H80000000,-1,0,0,0,100,100,0,0,1,4,2,5,10,10,50,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,00:00:00.16,00:00:03.43,Default,,0,0,0,,El aprendizaje no supervisado es una disciplina dentro del aprendizaje
+Dialogue: 0,00:00:03.43,00:00:06.28,Default,,0,0,0,,automático que se enfoca en analizar datos sin etiquetar para
+Dialogue: 0,00:00:06.28,00:00:07.91,Default,,0,0,0,,identificar patrones y relaciones.
+Dialogue: 0,00:00:08.72,00:00:13.16,Default,,0,0,0,,A diferencia del aprendizaje supervisado, que requiere datos claramente clasificados,
+Dialogue: 0,00:00:13.16,00:00:17.12,Default,,0,0,0,,los algoritmos no supervisados aprenden por sí mismos, revelando estructuras
+Dialogue: 0,00:00:17.12,00:00:18.80,Default,,0,0,0,,subyacentes en las bases de datos.
+Dialogue: 0,00:00:20.23,00:00:23.23,Default,,0,0,0,,Esto resulta esencial en tareas de exploración de datos, donde
+Dialogue: 0,00:00:23.23,00:00:26.96,Default,,0,0,0,,el objetivo es desentrañar información oculta y generar nuevos insights.
+Dialogue: 0,00:00:27.75,00:00:31.46,Default,,0,0,0,,Dentro de las técnicas principales destacan el agrupamiento en clústeres,
+Dialogue: 0,00:00:31.46,00:00:34.10,Default,,0,0,0,,el aprendizaje de reglas de asociación y la reducción de
+Dialogue: 0,00:00:34.10,00:00:34.95,Default,,0,0,0,,dimensionalidad.
+Dialogue: 0,00:00:35.50,00:00:39.42,Default,,0,0,0,,El agrupamiento, por ejemplo, forma grupos de datos similares, como
+Dialogue: 0,00:00:39.42,00:00:41.99,Default,,0,0,0,,clasificar clientes por patrones de compra.
+Dialogue: 0,00:00:42.22,00:00:45.59,Default,,0,0,0,,Por otro lado, las reglas de asociación descubren relaciones entre
+Dialogue: 0,00:00:45.59,00:00:49.42,Default,,0,0,0,,variables, algo útil en análisis de comportamientos de consumo, mientras
+Dialogue: 0,00:00:49.42,00:00:52.59,Default,,0,0,0,,que la reducción de dimensionalidad optimiza la representación de datos
+Dialogue: 0,00:00:52.59,00:00:54.14,Default,,0,0,0,,preservando información relevante.
+Dialogue: 0,00:00:55.09,00:00:58.00,Default,,0,0,0,,Aunque este enfoque tiene ventajas como no depender de datos
+Dialogue: 0,00:00:58.00,00:01:02.45,Default,,0,0,0,,etiquetados y ofrecer versatilidad en numerosas aplicaciones, también enfrenta retos
+Dialogue: 0,00:01:02.45,00:01:05.76,Default,,0,0,0,,como la dificultad para evaluar resultados y la complejidad computacional
+Dialogue: 0,00:01:05.76,00:01:07.32,Default,,0,0,0,,en grandes conjuntos de datos.
+Dialogue: 0,00:01:07.96,00:01:12.04,Default,,0,0,0,,En conclusión, el aprendizaje no supervisado representa una herramienta crucial
+Dialogue: 0,00:01:12.04,00:01:15.25,Default,,0,0,0,,para abordar problemas donde la información explícita es limitada.
+Dialogue: 0,00:01:16.53,00:01:19.68,Default,,0,0,0,,Es clave para construir modelos más avanzados y explorar datos
+Dialogue: 0,00:01:19.68,00:01:20.29,Default,,0,0,0,,en profundidad.

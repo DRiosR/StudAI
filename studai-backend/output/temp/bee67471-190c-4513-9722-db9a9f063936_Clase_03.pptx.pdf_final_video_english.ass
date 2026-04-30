@@ -1,0 +1,30 @@
+[Script Info]
+Title: Subtitles
+ScriptType: v4.00+
+WrapStyle: 0
+PlayResX: 1080
+PlayResY: 1920
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Gilroy-Bold,56,&H00FFFFFF,&H00FFFFFF,&H00000000,&H80000000,-1,0,0,0,100,100,0,0,1,4,2,5,10,10,50,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,00:00:00.08,00:00:01.91,Default,,0,0,0,,En el contexto de la prendizaje automatico.
+Dialogue: 0,00:00:01.91,00:00:05.36,Default,,0,0,0,,El aprendisaj en no supervisado representa una rama fundamental que
+Dialogue: 0,00:00:05.67,00:00:09.72,Default,,0,0,0,,organizadato si netiquetar a differentia de la prendizaj supervisado don
+Dialogue: 0,00:00:09.72,00:00:11.51,Default,,0,0,0,,de los datos bien empre classificados.
+Dialogue: 0,00:00:11.59,00:00:17.60,Default,,0,0,0,,El appendicado SEM foca in identificar patrones estructuras irelaciones subjacentes
+Dialogue: 0,00:00:17.60,00:00:20.44,Default,,0,0,0,,sin una indicacion previa del significado de los datos.
+Dialogue: 0,00:00:20.44,00:00:23.67,Default,,0,0,0,,Este en foque es fundamental parel analysis, exploratorio de information
+Dialogue: 0,00:00:23.92,00:00:27.19,Default,,0,0,0,,y la comprencion de los datos ensu forma mas pura
+Dialogue: 0,00:00:27.98,00:00:31.14,Default,,0,0,0,,entre las technicas, mas comunes de apprendicaje no supervisado en
+Dialogue: 0,00:00:31.14,00:00:34.74,Default,,0,0,0,,contramos el agrupamiento el apprendicje de reglas de associacion y
+Dialogue: 0,00:00:34.74,00:00:36.53,Default,,0,0,0,,la reduction de dimensionalidad.
+Dialogue: 0,00:00:36.53,00:00:44.10,Default,,0,0,0,,El agrupamiento classifica conjunctos de datos segun su similitudes utiles
+Dialogue: 0,00:00:44.10,00:00:47.53,Default,,0,0,0,,entre componentes de grandes volumines de datos porro trlado la
+Dialogue: 0,00:00:47.53,00:00:51.25,Default,,0,0,0,,reducion de dimensionalidad optimisa el numero de characteristicas de unconjunto
+Dialogue: 0,00:00:51.25,00:00:53.42,Default,,0,0,0,,de datos sin perder information critica.
+Dialogue: 0,00:00:56.71,00:00:57.42,Default,,0,0,0,,In conclusion.

@@ -1,0 +1,37 @@
+[Script Info]
+Title: Subtitles
+ScriptType: v4.00+
+WrapStyle: 0
+PlayResX: 1080
+PlayResY: 1920
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Gilroy-Bold,56,&H00FFFFFF,&H00FFFFFF,&H00000000,&H80000000,-1,0,0,0,100,100,0,0,1,4,2,5,10,10,50,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,00:00:00.16,00:00:03.39,Default,,0,0,0,,El aprendizaje no supervisado es una rama del aprendizaje automático
+Dialogue: 0,00:00:03.39,00:00:06.79,Default,,0,0,0,,que analiza datos sin etiquetar para identificar patrones y relaciones
+Dialogue: 0,00:00:06.79,00:00:07.75,Default,,0,0,0,,intrínsecas.
+Dialogue: 0,00:00:08.24,00:00:11.32,Default,,0,0,0,,A diferencia del aprendizaje supervisado, en el que los datos
+Dialogue: 0,00:00:11.32,00:00:14.51,Default,,0,0,0,,cuentan con etiquetas que guían el modelo, el aprendizaje no
+Dialogue: 0,00:00:14.51,00:00:17.44,Default,,0,0,0,,supervisado permite a los algoritmos explorar los datos de manera
+Dialogue: 0,00:00:17.44,00:00:20.71,Default,,0,0,0,,autónoma, descubriendo estructuras previamente desconocidas.
+Dialogue: 0,00:00:21.28,00:00:24.55,Default,,0,0,0,,Esto hace que sea particularmente útil en tareas exploratorias.
+Dialogue: 0,00:00:25.28,00:00:29.26,Default,,0,0,0,,Entre sus principales técnicas destacan el agrupamiento, el aprendizaje de
+Dialogue: 0,00:00:29.26,00:00:31.57,Default,,0,0,0,,reglas de asociación y la reducción de dimensionalidad.
+Dialogue: 0,00:00:32.29,00:00:35.89,Default,,0,0,0,,El agrupamiento organiza datos en grupo según sus similitudes, mientras
+Dialogue: 0,00:00:35.89,00:00:39.82,Default,,0,0,0,,que el aprendizaje de reglas de asociación identifica relaciones significativas
+Dialogue: 0,00:00:39.82,00:00:42.38,Default,,0,0,0,,entre variables en conjuntos de datos grandes.
+Dialogue: 0,00:00:42.85,00:00:46.53,Default,,0,0,0,,Por su parte, la reducción de dimensionalidad simplifica la representación
+Dialogue: 0,00:00:46.53,00:00:50.70,Default,,0,0,0,,de datos, preservando la información relevante, favoreciendo la eficiencia computacional
+Dialogue: 0,00:00:50.70,00:00:51.65,Default,,0,0,0,,y la visualización.
+Dialogue: 0,00:00:52.29,00:00:56.06,Default,,0,0,0,,Este enfoque tiene ventajas fundamentales como no depender de datos
+Dialogue: 0,00:00:56.06,00:01:00.28,Default,,0,0,0,,etiquetados, permitiendo descubrir patrones ocultos y explorar grandes volúmenes de
+Dialogue: 0,00:01:00.60,00:01:01.07,Default,,0,0,0,,información.
+Dialogue: 0,00:01:01.64,00:01:05.35,Default,,0,0,0,,Sin embargo, presenta desafíos como la dificultad para evaluar resultados
+Dialogue: 0,00:01:05.35,00:01:07.56,Default,,0,0,0,,y la sensibilidad a la calidad de los datos.
+Dialogue: 0,00:01:08.20,00:01:11.76,Default,,0,0,0,,En resumen, el aprendizaje no supervisado es una herramienta clave
+Dialogue: 0,00:01:11.76,00:01:13.79,Default,,0,0,0,,para explorar y comprender datos complejos.

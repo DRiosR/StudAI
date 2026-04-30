@@ -3,14 +3,34 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { FileText, Video, ArrowLeft, Sparkles } from 'lucide-react';
+import { FileText, Video, ArrowLeft, Sparkles, Trash2, Save } from 'lucide-react';
 import type { GeneratedVideoResult } from '@/models/video_output';
 import { useSearchParams } from 'next/navigation';
+import { MAX_SAVED_VIDEOS, readSavedVideos, type SavedVideoItem, writeSavedVideos } from '@/lib/saved-videos';
 
 export default function VideoOutputPage() {
   const [result, setResult] = useState<GeneratedVideoResult | null>(null);
   const [isPolling, setIsPolling] = useState(false);
+  const [savedVideos, setSavedVideos] = useState<SavedVideoItem[]>([]);
+  const [saveMessage, setSaveMessage] = useState('');
   const searchParams = useSearchParams();
+
+  const normalizeAzureSasUrl = (maybeUrl: string | null | undefined) => {
+    if (!maybeUrl || typeof maybeUrl !== 'string') return maybeUrl;
+    // Azure SAS signatures often contain '+' which MUST be URL-encoded as %2B.
+    // If we pass a raw '+' to the browser, Azure may interpret it as space and reject (403).
+    try {
+      const u = new URL(maybeUrl);
+      const query = u.search.replace(/\+/g, '%2B');
+      return `${u.origin}${u.pathname}${query}${u.hash}`;
+    } catch {
+      return maybeUrl.replace(/\+/g, '%2B');
+    }
+  };
+
+  useEffect(() => {
+    setSavedVideos(readSavedVideos());
+  }, []);
 
   useEffect(() => {
     try {
@@ -18,6 +38,9 @@ export default function VideoOutputPage() {
       if (urlParam) {
         const decoded = decodeURIComponent(urlParam);
         const parsed = JSON.parse(decoded) as GeneratedVideoResult;
+        // Normalizar URLs SAS para evitar 403 por '+' sin escape.
+        parsed.audio_url = normalizeAzureSasUrl(parsed.audio_url) as string;
+        parsed.video_url = normalizeAzureSasUrl(parsed.video_url) as string | null;
         console.log('📥 Resultado parseado desde URL:', parsed);
         console.log('🎬 Video URL:', parsed.video_url);
         console.log('🆔 Job ID:', parsed.job_id);
@@ -46,6 +69,9 @@ export default function VideoOutputPage() {
       const stored = sessionStorage.getItem('studaiLastResult');
       if (stored) {
         const parsed = JSON.parse(stored) as GeneratedVideoResult;
+        // Normalizar URLs SAS para evitar 403 por '+' sin escape.
+        parsed.audio_url = normalizeAzureSasUrl(parsed.audio_url) as string;
+        parsed.video_url = normalizeAzureSasUrl(parsed.video_url) as string | null;
         console.log('📥 Resultado desde sessionStorage:', parsed);
         console.log('🎬 Video URL:', parsed.video_url);
         setResult(parsed);
@@ -100,7 +126,7 @@ export default function VideoOutputPage() {
         console.log("   Video URL en result:", status.result?.video_url);
         
         if (status.status === "completed" && status.result) {
-          const videoUrl = status.result.video_url;
+          const videoUrl = normalizeAzureSasUrl(status.result.video_url);
           console.log("✅ Job completado! Video URL:", videoUrl);
           
           // Verificar que el video_url sea válido
@@ -114,7 +140,11 @@ export default function VideoOutputPage() {
           setResult((prevResult) => {
             if (!prevResult) {
               console.warn("⚠️  No hay resultado previo, creando nuevo resultado desde status.result");
-              const newResult = { ...status.result };
+              const newResult = {
+                ...status.result,
+                audio_url: normalizeAzureSasUrl(status.result.audio_url),
+                video_url: normalizeAzureSasUrl(status.result.video_url),
+              };
               try {
                 sessionStorage.setItem('studaiLastResult', JSON.stringify(newResult));
               } catch (e) {
@@ -125,6 +155,7 @@ export default function VideoOutputPage() {
             const updatedResult = {
               ...prevResult,
               ...status.result,
+              audio_url: normalizeAzureSasUrl(status.result.audio_url) || prevResult.audio_url,
               video_url: videoUrl
             };
             console.log("🔄 Actualizando resultado con video_url:", updatedResult.video_url);
@@ -166,10 +197,57 @@ export default function VideoOutputPage() {
     poll();
   };
 
+  const persistSavedVideos = (items: SavedVideoItem[]) => {
+    setSavedVideos(items);
+    writeSavedVideos(items);
+  };
+
+  const handleSaveCurrentVideo = () => {
+    if (!result) return;
+    if (!result.video_url || result.video_url === 'null' || result.video_url.trim() === '') {
+      setSaveMessage('No puedes guardar hasta que el video este disponible.');
+      return;
+    }
+
+    const alreadySaved = savedVideos.some(
+      (item) =>
+        item.data.video_url === result.video_url ||
+        (result.job_id && item.data.job_id === result.job_id)
+    );
+    if (alreadySaved) {
+      setSaveMessage('Este video ya esta guardado.');
+      return;
+    }
+
+    if (savedVideos.length >= MAX_SAVED_VIDEOS) {
+      setSaveMessage('Llegaste al maximo de 5 videos. Elimina uno para guardar otro.');
+      return;
+    }
+
+    const titleSource = result.topic || result.pdf_name || 'Video sin titulo';
+    const newItem: SavedVideoItem = {
+      id: crypto.randomUUID(),
+      createdAt: new Date().toISOString(),
+      title: titleSource,
+      data: result,
+    };
+
+    const updated = [newItem, ...savedVideos];
+    persistSavedVideos(updated);
+    setSaveMessage('Video guardado correctamente.');
+  };
+
+  const handleDeleteSavedVideo = (id: string) => {
+    const updated = savedVideos.filter((item) => item.id !== id);
+    persistSavedVideos(updated);
+    setSaveMessage('Video eliminado del historial.');
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-slate-900 to-black relative overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(120,119,198,0.08),rgba(255,255,255,0))]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(149,76,233,0.07),rgba(255,255,255,0))]" />
+    <div className="min-h-screen bg-slate-950 relative overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_20%_18%,rgba(59,130,246,0.15),transparent_40%)]" />
+      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_82%_72%,rgba(16,185,129,0.13),transparent_45%)]" />
+      <div className="absolute inset-x-0 top-0 h-80 bg-gradient-to-b from-white/5 to-transparent pointer-events-none" />
 
       <div className="relative z-10 max-w-5xl mx-auto px-4 py-10 md:py-16">
         <div className="mb-8 flex items-center justify-between">
@@ -178,23 +256,23 @@ export default function VideoOutputPage() {
             className="inline-flex items-center gap-2 text-white/80 hover:text-white transition"
           >
             <ArrowLeft className="w-5 h-5" />
-            Back to Generate
+            Volver al generador
           </Link>
           <div className="inline-flex items-center gap-2 text-white/80">
-            <Sparkles className="w-5 h-5 text-pink-400" />
+            <Sparkles className="w-5 h-5 text-cyan-300" />
             <span className="font-semibold">StudAI</span>
           </div>
         </div>
 
         {!result ? (
           <div className="text-center text-white/80">
-            <p>No result found. Please generate a video first.</p>
+            <p>No se encontro resultado. Genera un video primero.</p>
             <div className="mt-6">
               <Link
                 href="/video"
-                className="inline-flex items-center justify-center px-6 py-3 rounded-2xl bg-gradient-to-r from-purple-700 to-pink-700 text-white font-semibold hover:opacity-90 transition"
+                className="inline-flex items-center justify-center px-6 py-3 rounded-2xl bg-gradient-to-r from-cyan-500 to-emerald-500 text-slate-950 font-semibold hover:opacity-90 transition"
               >
-                Go to Generator
+                Ir al generador
               </Link>
             </div>
           </div>
@@ -204,20 +282,20 @@ export default function VideoOutputPage() {
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="text-3xl md:text-4xl font-bold text-white"
+              className="text-3xl md:text-4xl font-black tracking-tight text-white"
             >
-              StudAI — Your Generated Output
+              Resultado generado con StudAI
             </motion.h1>
 
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.1 }}
-              className="bg-black/40 backdrop-blur-md border border-white/10 rounded-3xl p-6"
+              className="bg-slate-900/65 backdrop-blur-md border border-white/10 rounded-3xl p-6"
             >
               <div className="flex items-center gap-3 mb-4">
-                <FileText className="w-6 h-6 text-purple-400" />
-                <h2 className="text-xl font-semibold text-white">Generated Script</h2>
+                <FileText className="w-6 h-6 text-cyan-300" />
+                <h2 className="text-xl font-semibold text-white">Guion generado</h2>
               </div>
               <p className="text-white/80 leading-relaxed">{result.script}</p>
               {result.pdf_blob_url && result.pdf_name && (
@@ -227,7 +305,7 @@ export default function VideoOutputPage() {
                     download={result.pdf_name}
                     className="inline-flex items-center justify-center px-4 py-2 rounded-xl bg-white/5 text-white border border-white/10 hover:bg-white/10 transition"
                   >
-                    Download Source PDF
+                    Descargar PDF fuente
                   </a>
                 </div>
               )}
@@ -237,11 +315,11 @@ export default function VideoOutputPage() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.15 }}
-              className="bg-black/40 backdrop-blur-md border border-white/10 rounded-3xl p-6"
+              className="bg-slate-900/65 backdrop-blur-md border border-white/10 rounded-3xl p-6"
             >
               <div className="flex items-center gap-3 mb-4">
-                <Video className="w-6 h-6 text-pink-400" />
-                <h3 className="text-lg font-semibold text-white">Final Video</h3>
+                <Video className="w-6 h-6 text-emerald-300" />
+                <h3 className="text-lg font-semibold text-white">Video final</h3>
               </div>
               {(() => {
                 const videoUrl = result.video_url;
@@ -281,28 +359,94 @@ export default function VideoOutputPage() {
                   />
                 </div>
               ) : isPolling ? (
-                <div className="w-full h-64 flex items-center justify-center rounded-2xl border border-white/10 bg-black/20">
+                <div className="w-full h-64 flex items-center justify-center rounded-2xl border border-white/10 bg-slate-950/40">
                   <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-400 mx-auto mb-4"></div>
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-300 mx-auto mb-4"></div>
                     <p className="text-white/80">Generando video...</p>
                     <p className="text-white/50 text-sm mt-2">Esto puede tardar unos minutos</p>
                   </div>
                 </div>
               ) : (
-                <div className="w-full h-64 flex items-center justify-center rounded-2xl border border-white/10 bg-black/20">
+                <div className="w-full h-64 flex items-center justify-center rounded-2xl border border-white/10 bg-slate-950/40">
                   <p className="text-white/60">Video no disponible</p>
                 </div>
               )}
             </motion.div>
 
             <div className="pt-4">
-              <Link
-                href="/video"
-                className="inline-flex items-center justify-center px-6 py-3 rounded-2xl bg-white/5 text-white border border-white/10 hover:bg-white/10 transition"
-              >
-                Create Another
-              </Link>
+              <div className="flex flex-wrap gap-3">
+                <button
+                  onClick={handleSaveCurrentVideo}
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-cyan-500 to-emerald-500 text-slate-950 font-semibold hover:opacity-90 transition"
+                >
+                  <Save className="w-4 h-4" />
+                  Guardar video
+                </button>
+                <Link
+                  href="/video"
+                  className="inline-flex items-center justify-center px-6 py-3 rounded-2xl bg-white/5 text-white border border-white/10 hover:bg-white/10 transition"
+                >
+                  Crear otro
+                </Link>
+                <Link
+                  href="/video/library"
+                  className="inline-flex items-center justify-center px-6 py-3 rounded-2xl bg-white/5 text-white border border-white/10 hover:bg-white/10 transition"
+                >
+                  Ver guardados
+                </Link>
+              </div>
+              {saveMessage && <p className="mt-3 text-sm text-white/75">{saveMessage}</p>}
             </div>
+
+            <section className="bg-slate-900/65 backdrop-blur-md border border-white/10 rounded-3xl p-6">
+              <div className="flex items-center justify-between gap-4">
+                <h3 className="text-lg font-semibold text-white">Videos guardados</h3>
+                <span className="text-sm text-white/60">
+                  {savedVideos.length}/{MAX_SAVED_VIDEOS}
+                </span>
+              </div>
+
+              {savedVideos.length === 0 ? (
+                <p className="text-white/60 mt-4">
+                  Aun no tienes videos guardados. Guarda tu primer resultado.
+                </p>
+              ) : (
+                <div className="mt-4 grid gap-3">
+                  {savedVideos.map((item) => (
+                    <div
+                      key={item.id}
+                      className="rounded-2xl border border-white/10 bg-white/5 p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
+                    >
+                      <div>
+                        <p className="text-white font-medium">{item.title}</p>
+                        <p className="text-xs text-white/60">
+                          Guardado: {new Date(item.createdAt).toLocaleString()}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {item.data.video_url && (
+                          <a
+                            href={item.data.video_url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-white hover:bg-white/10 transition"
+                          >
+                            Ver
+                          </a>
+                        )}
+                        <button
+                          onClick={() => handleDeleteSavedVideo(item.id)}
+                          className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-red-500/15 border border-red-400/20 text-red-200 text-sm hover:bg-red-500/25 transition"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          Eliminar
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
           </div>
         )}
       </div>

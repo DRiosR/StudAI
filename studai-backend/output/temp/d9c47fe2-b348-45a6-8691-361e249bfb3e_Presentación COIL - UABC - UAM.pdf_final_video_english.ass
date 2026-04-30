@@ -1,0 +1,33 @@
+[Script Info]
+Title: Subtitles
+ScriptType: v4.00+
+WrapStyle: 0
+PlayResX: 1080
+PlayResY: 1920
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Gilroy-Bold,56,&H00FFFFFF,&H00FFFFFF,&H00000000,&H80000000,-1,0,0,0,100,100,0,0,1,4,2,5,10,10,50,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,00:00:00.08,00:00:00.88,Default,,0,0,0,,Ever heard of coil?
+Dialogue: 0,00:00:01.12,00:00:02.79,Default,,0,0,0,,It's not just another online class.
+Dialogue: 0,00:00:02.87,00:00:05.75,Default,,0,0,0,,It's a revolutionary way to connect students across the globe.
+Dialogue: 0,00:00:06.00,00:00:08.72,Default,,0,0,0,,Imagine working side by side with students from different countries,
+Dialogue: 0,00:00:08.88,00:00:12.32,Default,,0,0,0,,tackling shared projects and building trust, all while guided by
+Dialogue: 0,00:00:12.32,00:00:13.19,Default,,0,0,0,,expert educators.
+Dialogue: 0,00:00:13.35,00:00:17.76,Default,,0,0,0,,COIL stands for Collaborative Online International Learning, Blending virtual interactions
+Dialogue: 0,00:00:17.76,00:00:20.96,Default,,0,0,0,,with face to face sessions for a truly multicultural learning
+Dialogue: 0,00:00:20.96,00:00:21.28,Default,,0,0,0,,experience.
+Dialogue: 0,00:00:21.76,00:00:23.92,Default,,0,0,0,,It's not a lifeless MOOC or just a social media
+Dialogue: 0,00:00:23.92,00:00:24.32,Default,,0,0,0,,group.
+Dialogue: 0,00:00:24.39,00:00:27.19,Default,,0,0,0,,It's structured, engaging, and deeply collaborative.
+Dialogue: 0,00:00:27.35,00:00:30.71,Default,,0,0,0,,Students and faculty work together to define goals, solve problems,
+Dialogue: 0,00:00:30.71,00:00:32.07,Default,,0,0,0,,and share their insights.
+Dialogue: 0,00:00:32.07,00:00:36.32,Default,,0,0,0,,From icebreakers to final presentations, col builds connections that last.
+Dialogue: 0,00:00:36.88,00:00:38.92,Default,,0,0,0,,So are you ready to step into a global classroom?
+Dialogue: 0,00:00:38.92,00:00:41.75,Default,,0,0,0,,Check out the padlet, introduce yourself and join us on
+Dialogue: 0,00:00:41.75,00:00:43.03,Default,,0,0,0,,this incredible journey.
+Dialogue: 0,00:00:43.03,00:00:45.60,Default,,0,0,0,,It's not just education, it's transformation.

@@ -1,0 +1,17 @@
+[Script Info]
+Title: Subtitles
+ScriptType: v4.00+
+WrapStyle: 0
+PlayResX: 1080
+PlayResY: 1920
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Gilroy-Bold,56,&H00FFFFFF,&H00FFFFFF,&H00000000,&H80000000,-1,0,0,0,100,100,0,0,1,4,2,5,10,10,50,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,00:00:19.83,00:00:21.23,Default,,0,0,0,,Y mitan el cerebro humano.
+Dialogue: 0,00:00:21.23,00:00:26.00,Default,,0,0,0,,Esto sistemas proces andatos Ajustan pesos segunso relevancia y genera
+Dialogue: 0,00:00:26.48,00:00:27.67,Default,,0,0,0,,ves mas precisas.

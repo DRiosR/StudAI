@@ -1,0 +1,38 @@
+[Script Info]
+Title: Subtitles
+ScriptType: v4.00+
+WrapStyle: 0
+PlayResX: 1080
+PlayResY: 1920
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Gilroy-Bold,56,&H00FFFFFF,&H00FFFFFF,&H00000000,&H80000000,-1,0,0,0,100,100,0,0,1,4,2,5,10,10,50,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,00:00:00.08,00:00:01.67,Default,,0,0,0,,Alright, let's talk AI.
+Dialogue: 0,00:00:01.67,00:00:04.16,Default,,0,0,0,,The tech that's everywhere but what does it actually do?
+Dialogue: 0,00:00:04.63,00:00:08.56,Default,,0,0,0,,At its core, artificial intelligence lets machines sense, think, act
+Dialogue: 0,00:00:08.56,00:00:09.51,Default,,0,0,0,,and even learn.
+Dialogue: 0,00:00:09.67,00:00:11.75,Default,,0,0,0,,Kinda like our brains but without the caffeine.
+Dialogue: 0,00:00:11.83,00:00:15.72,Default,,0,0,0,,From recognizing faces to recommending that perfect playlist, AI is
+Dialogue: 0,00:00:15.72,00:00:16.83,Default,,0,0,0,,all about patterns.
+Dialogue: 0,00:00:16.83,00:00:19.76,Default,,0,0,0,,Spotting em, predicting em and improving based on experience.
+Dialogue: 0,00:00:20.96,00:00:22.51,Default,,0,0,0,,Take deep learning for example.
+Dialogue: 0,00:00:22.51,00:00:25.23,Default,,0,0,0,,It's like a mini brain built from interconnected neurons that
+Dialogue: 0,00:00:25.23,00:00:25.92,Default,,0,0,0,,process data.
+Dialogue: 0,00:00:26.32,00:00:28.60,Default,,0,0,0,,The more it learns the better it gets whether it's
+Dialogue: 0,00:00:28.60,00:00:31.19,Default,,0,0,0,,translating languages or spotting cats in your photos.
+Dialogue: 0,00:00:31.28,00:00:32.15,Default,,0,0,0,,Cool, right?
+Dialogue: 0,00:00:32.96,00:00:34.24,Default,,0,0,0,,But it's not all sunshine.
+Dialogue: 0,00:00:34.39,00:00:35.67,Default,,0,0,0,,AI isn't perfect yet.
+Dialogue: 0,00:00:35.92,00:00:39.11,Default,,0,0,0,,Think AI recruitment tools showing bias or face recognition tech
+Dialogue: 0,00:00:39.11,00:00:40.24,Default,,0,0,0,,being tricked by masks.
+Dialogue: 0,00:00:40.39,00:00:42.67,Default,,0,0,0,,There's a huge push for responsible AI to make sure
+Dialogue: 0,00:00:42.67,00:00:44.96,Default,,0,0,0,,it's fair, safe and does what's best for everyone.
+Dialogue: 0,00:00:46.24,00:00:48.15,Default,,0,0,0,,So yeah, AI is changing the world.
+Dialogue: 0,00:00:48.24,00:00:49.67,Default,,0,0,0,,Just make sure it's doing it for the better.
+Dialogue: 0,00:00:49.84,00:00:51.11,Default,,0,0,0,,What's your favorite AI use?
+Dialogue: 0,00:00:51.20,00:00:51.84,Default,,0,0,0,,Drop it below.

@@ -1,0 +1,38 @@
+[Script Info]
+Title: Subtitles
+ScriptType: v4.00+
+WrapStyle: 0
+PlayResX: 1080
+PlayResY: 1920
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Gilroy-Bold,56,&H00FFFFFF,&H00FFFFFF,&H00000000,&H80000000,-1,0,0,0,100,100,0,0,1,4,2,5,10,10,50,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,00:00:00.16,00:00:03.12,Default,,0,0,0,,La inteligencia artificial o AI por sus siglas en inglés,
+Dialogue: 0,00:00:03.20,00:00:06.55,Default,,0,0,0,,representa uno de los avances más significativos en la ingeniería
+Dialogue: 0,00:00:06.55,00:00:08.56,Default,,0,0,0,,de software y ciencias computacionales.
+Dialogue: 0,00:00:09.11,00:00:12.67,Default,,0,0,0,,Esta disciplina permite a las máquinas adquirir, procesar y analizar
+Dialogue: 0,00:00:12.67,00:00:16.64,Default,,0,0,0,,información para tomar decisiones basadas en datos previos, adaptándose y
+Dialogue: 0,00:00:16.64,00:00:18.80,Default,,0,0,0,,mejorando su desempeño de manera autónoma.
+Dialogue: 0,00:00:19.28,00:00:22.76,Default,,0,0,0,,Dentro de la inteligencia artificial existen áreas clave como el
+Dialogue: 0,00:00:22.76,00:00:27.16,Default,,0,0,0,,aprendizaje automático, conocido como machine learning, el aprendizaje profundo o
+Dialogue: 0,00:00:27.16,00:00:29.35,Default,,0,0,0,,deep learning y el preprocesamiento de datos.
+Dialogue: 0,00:00:30.25,00:00:34.21,Default,,0,0,0,,El aprendizaje automático opera mediante algoritmos que permiten reconocer patrones
+Dialogue: 0,00:00:34.21,00:00:37.40,Default,,0,0,0,,ocultos, aprender de ejemplos o reaccionar a entornos tras prueba
+Dialogue: 0,00:00:37.40,00:00:38.09,Default,,0,0,0,,y error.
+Dialogue: 0,00:00:38.57,00:00:42.21,Default,,0,0,0,,Por otro lado, el aprendizaje profundo utiliza redes neuronales que
+Dialogue: 0,00:00:42.21,00:00:46.17,Default,,0,0,0,,emulan el funcionamiento del cerebro humano, procesando información en múltiples
+Dialogue: 0,00:00:46.17,00:00:48.25,Default,,0,0,0,,capas para lograr resultados avanzados.
+Dialogue: 0,00:00:48.89,00:00:52.28,Default,,0,0,0,,Las aplicaciones de la inteligencia artificial son amplias, desde el
+Dialogue: 0,00:00:52.28,00:00:55.96,Default,,0,0,0,,reconocimiento facial y la traducción automática hasta asistentes virtuales y
+Dialogue: 0,00:00:55.96,00:00:56.81,Default,,0,0,0,,minería de datos.
+Dialogue: 0,00:00:57.78,00:01:00.70,Default,,0,0,0,,Sin embargo, los desafíos éticos y los riesgos, como el
+Dialogue: 0,00:01:00.70,00:01:04.34,Default,,0,0,0,,sesgo algorítmico o los deepfakes, señalan la importancia de desarrollar
+Dialogue: 0,00:01:04.34,00:01:06.73,Default,,0,0,0,,principios responsables para su implementación.
+Dialogue: 0,00:01:07.21,00:01:10.93,Default,,0,0,0,,En conclusión, el potencial de la inteligencia artificial es inmenso,
+Dialogue: 0,00:01:10.93,00:01:14.45,Default,,0,0,0,,pero debe ser utilizado con responsabilidad para maximizar sus beneficios
+Dialogue: 0,00:01:14.45,00:01:16.98,Default,,0,0,0,,mientras se mitigan los posibles impactos negativos.

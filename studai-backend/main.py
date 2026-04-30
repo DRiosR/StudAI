@@ -655,11 +655,21 @@ async def get_video_status(job_id: str):
         }
     
     job = jobs[job_id]
+    # Durante "processing" guardamos script/audio_url/video_url a nivel de job,
+    # y "result" solo aparece cuando termina. Para que el frontend pueda mostrar
+    # el texto y el audio desde el inicio, devolvemos un result parcial.
+    result = job.get("result")
+    if result is None and any(job.get(k) for k in ("script", "audio_url", "video_url")):
+        result = {
+            "script": job.get("script"),
+            "audio_url": job.get("audio_url"),
+            "video_url": job.get("video_url"),
+        }
     return {
         "job_id": job_id,
         "status": job.get("status", "unknown"),
         "message": job.get("message", ""),
-        "result": job.get("result"),
+        "result": result,
         "error": job.get("error"),
         "created_at": job.get("created_at"),
         "completed_at": job.get("completed_at")

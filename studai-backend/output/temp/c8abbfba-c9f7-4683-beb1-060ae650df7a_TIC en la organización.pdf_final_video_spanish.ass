@@ -1,0 +1,33 @@
+[Script Info]
+Title: Subtitles
+ScriptType: v4.00+
+WrapStyle: 0
+PlayResX: 1080
+PlayResY: 1920
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Gilroy-Bold,56,&H00FFFFFF,&H00FFFFFF,&H00000000,&H80000000,-1,0,0,0,100,100,0,0,1,4,2,5,10,10,50,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,00:00:00.24,00:00:03.79,Default,,0,0,0,,¿Sabías que muchas empresas tienen tecnología pero no saben usarla
+Dialogue: 0,00:00:03.79,00:00:04.08,Default,,0,0,0,,bien?
+Dialogue: 0,00:00:04.32,00:00:05.75,Default,,0,0,0,,Vamos a hablar de eso.
+Dialogue: 0,00:00:06.08,00:00:09.19,Default,,0,0,0,,Mira, el problema en muchas organizaciones no es que falten
+Dialogue: 0,00:00:09.19,00:00:12.48,Default,,0,0,0,,herramientas tecnológicas, sino que no están bien implementadas.
+Dialogue: 0,00:00:12.80,00:00:16.60,Default,,0,0,0,,Por ejemplo, imagina una empresa con constantes retrasos y conflictos
+Dialogue: 0,00:00:16.60,00:00:17.35,Default,,0,0,0,,entre equipos.
+Dialogue: 0,00:00:17.44,00:00:20.23,Default,,0,0,0,,Quizás tienen un sistema de gestión de tareas, pero si
+Dialogue: 0,00:00:20.23,00:00:23.03,Default,,0,0,0,,nadie lo utiliza correctamente, de nada sirve.
+Dialogue: 0,00:00:23.12,00:00:26.03,Default,,0,0,0,,Además, el estrés laboral no siempre se resuelve con una
+Dialogue: 0,00:00:26.03,00:00:26.80,Default,,0,0,0,,aplicación nueva.
+Dialogue: 0,00:00:27.12,00:00:29.03,Default,,0,0,0,,A veces lo que falta es claridad en los roles
+Dialogue: 0,00:00:29.03,00:00:30.39,Default,,0,0,0,,o comunicación efectiva.
+Dialogue: 0,00:00:30.48,00:00:33.96,Default,,0,0,0,,Las TIC no son mágicas, son herramientas y su verdadero
+Dialogue: 0,00:00:33.96,00:00:36.11,Default,,0,0,0,,impacto depende de cómo se integren en el día a
+Dialogue: 0,00:00:36.11,00:00:36.39,Default,,0,0,0,,día.
+Dialogue: 0,00:00:36.56,00:00:39.43,Default,,0,0,0,,¿Así que la pregunta es, tu empresa tiene la tecnología
+Dialogue: 0,00:00:39.43,00:00:42.00,Default,,0,0,0,,que necesita o solo la tiene pero la usa mal?
+Dialogue: 0,00:00:42.15,00:00:43.20,Default,,0,0,0,,Piensa en eso.

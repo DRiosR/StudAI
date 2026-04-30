@@ -3,12 +3,13 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FileUpload } from '@/components/aceternity/FileUpload';
-import { GradientButton } from '@/components/aceternity/GradientButton';
 import { Confetti } from '@/components/aceternity/Confetti';
 import {
+  ArrowLeft,
   Sparkles,
   Send,
 } from 'lucide-react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import generateVideo from '@/lib/api';
 import type { Input } from '@/models/input';
@@ -24,13 +25,14 @@ export default function VideoPage() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [loaderIndex, setLoaderIndex] = useState(0);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const [errorMessage, setErrorMessage] = useState('');
   const loaderMessages = [
-    'Uploading file',
-    'Reading your PDF',
-    'Generating the best script possible',
-    'Making it Funny AF',
-    'Cooking the perfect TTS',
-    'Stitching your video magic',
+    'Subiendo archivo',
+    'Leyendo tu PDF',
+    'Generando el mejor guion posible',
+    'Preparando la narracion',
+    'Renderizando audio y video',
+    'Aplicando detalles finales',
   ];
 
   useEffect(() => {
@@ -57,13 +59,16 @@ export default function VideoPage() {
   }, [isGenerating]);
 
   const handleFileChange = (files: File[]) => {
-    if (files.length > 0) {
-      setFile(files[0]);
-    }
+    setFile(files.length > 0 ? files[0] : null);
+    setErrorMessage('');
   };
 
   const handleGenerate = async () => {
-    if (!file) return;
+    if (!file) {
+      setErrorMessage('Primero debes subir un archivo PDF.');
+      return;
+    }
+    setErrorMessage('');
     setIsGenerating(true);
     const payload: Input = {
       files: [file],
@@ -140,7 +145,13 @@ export default function VideoPage() {
       }
     } catch (error) {
       console.error('Failed to generate video:', error);
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'No se pudo generar el video. Revisa que el backend este corriendo.';
+      setErrorMessage(message);
       setIsGenerating(false);
+      setStage('idle');
     }
   };
 
@@ -152,56 +163,83 @@ export default function VideoPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black relative overflow-hidden">
+    <div className="min-h-screen bg-slate-950 relative overflow-hidden">
       {showConfetti && <Confetti />}
       {isGenerating && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 backdrop-blur-sm">
           <div className="flex flex-col items-center gap-5 w-full px-4">
-            <div className="flex flex-col items-center gap-2">
+            <div className="w-full max-w-md rounded-3xl border border-white/15 bg-slate-900/80 p-6 backdrop-blur-md shadow-2xl">
               <LoaderFive text={`${loaderMessages[loaderIndex]} — ${elapsedSeconds}s`} />
-              <p className="text-white/70 text-sm">
+              <p className="text-white/80 text-sm text-center mt-3">
                 {elapsedSeconds < 30 
-                  ? `Processing your video... ${elapsedSeconds}s` 
+                  ? `Procesando tu video... ${elapsedSeconds}s` 
                   : elapsedSeconds < 60
-                  ? `Still working... ${Math.floor(elapsedSeconds / 60)}m ${elapsedSeconds % 60}s`
-                  : `This may take a few minutes... ${Math.floor(elapsedSeconds / 60)}m ${elapsedSeconds % 60}s`}
+                  ? `Seguimos trabajando... ${Math.floor(elapsedSeconds / 60)}m ${elapsedSeconds % 60}s`
+                  : `Esto puede tardar unos minutos... ${Math.floor(elapsedSeconds / 60)}m ${elapsedSeconds % 60}s`}
               </p>
+              <div className="mt-4 h-2 w-full rounded-full bg-white/10 overflow-hidden">
+                <motion.div
+                  className="h-full w-1/3 bg-gradient-to-r from-cyan-400 to-emerald-400"
+                  animate={{ x: ['-120%', '320%'] }}
+                  transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+                />
+              </div>
               {elapsedSeconds > 20 && (
-                <p className="text-white/50 text-xs mt-1">
-                  Video processing can take 1-3 minutes. Please wait...
+                <p className="text-white/60 text-xs mt-3 text-center">
+                  El procesamiento puede tomar entre 1 y 3 minutos. Espera un momento.
                 </p>
               )}
             </div>
           </div>
         </div>
       )}
-      {/* solid black background as requested; gradients removed */}
+      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_20%_18%,rgba(59,130,246,0.15),transparent_40%)]" />
+      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_82%_72%,rgba(16,185,129,0.13),transparent_45%)]" />
+      <div className="absolute inset-x-0 top-0 h-80 bg-gradient-to-b from-white/5 to-transparent pointer-events-none" />
 
       <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 py-12">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-12"
+          className="text-center mb-12 w-full max-w-4xl"
         >
+          <div className="mb-6 flex justify-start">
+            <div className="flex items-center gap-3">
+              <Link
+                href="/home"
+                className="inline-flex items-center gap-2 text-sm text-white/75 hover:text-white transition"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Volver al inicio
+              </Link>
+              <Link
+                href="/video/library"
+                className="inline-flex items-center gap-2 text-sm text-white/75 hover:text-white transition"
+              >
+                Mis videos
+              </Link>
+            </div>
+          </div>
           <motion.div
             initial={{ scale: 0.95 }}
             animate={{ scale: 1 }}
             transition={{ duration: 2, repeat: Infinity, repeatType: 'reverse' }}
-            className="inline-flex items-center gap-2 mb-4"
+            className="inline-flex items-center gap-2 rounded-full px-4 py-2 mb-4 bg-white/5 border border-white/10"
           >
-            <Sparkles className="w-8 h-8 text-pink-400" />
+            <Sparkles className="w-4 h-4 text-cyan-300" />
+            <span className="text-white/90 text-sm">Generador IA</span>
           </motion.div>
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 tracking-tight">
-            StudAI — Generate
-            <span className="bg-gradient-to-r from-purple-600 to-pink-600 text-transparent bg-clip-text">
+          <h1 className="text-4xl md:text-6xl font-black text-white mb-4 tracking-tight">
+            Crea tu video con
+            <span className="bg-gradient-to-r from-cyan-300 via-sky-400 to-emerald-400 text-transparent bg-clip-text">
               {' '}
-              Short-Form
+              StudAI
             </span>{' '}
-            Video
+            en minutos
           </h1>
           <p className="text-white/70 text-base md:text-lg max-w-2xl mx-auto">
-            Upload a PDF and let AI craft a viral-ready script, TTS, and video.
+            Sube un PDF, personaliza el enfoque y genera guion, narracion y video con una calidad visual profesional.
           </p>
         </motion.div>
 
@@ -213,7 +251,9 @@ export default function VideoPage() {
             exit={{ opacity: 0, scale: 0.97 }}
             className="w-full max-w-2xl space-y-8"
           >
-            <FileUpload onChange={handleFileChange} />
+            <div className="rounded-3xl border border-white/10 bg-slate-900/65 p-5 backdrop-blur-sm">
+              <FileUpload onChange={handleFileChange} />
+            </div>
 
             <div className="space-y-4">
               <form
@@ -222,7 +262,7 @@ export default function VideoPage() {
                   handleGenerate();
                 }}
               >
-                <div className="flex items-end gap-2 bg-white/5 border border-purple-900/40 rounded-[2rem] p-4 focus-within:ring-2 ring-purple-700/40 transition">
+                <div className="flex items-end gap-2 bg-slate-900/70 border border-white/15 rounded-[2rem] p-4 focus-within:ring-2 ring-cyan-500/40 transition backdrop-blur-sm">
                   <textarea
                     value={additionalInput}
                     onChange={(e) => setAdditionalInput(e.target.value)}
@@ -233,15 +273,15 @@ export default function VideoPage() {
                       }
                     }}
                     rows={1}
-                    placeholder="Describe tone, style, or keywords…"
-                    className="w-full bg-transparent text-white placeholder-white/40 focus:outline-none resize-none leading-6"
+                    placeholder="Describe tono, estilo o palabras clave..."
+                    className="w-full bg-transparent text-white placeholder-slate-400 focus:outline-none resize-none leading-6"
                   />
                   <button
                     type="submit"
                     disabled={!file || isGenerating}
-                    className="shrink-0 inline-flex items-center justify-center h-11 w-11 rounded-2xl bg-gradient-to-r from-purple-700 to-pink-700 text-white hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                    aria-label="Send"
-                    title="Send"
+                    className="shrink-0 inline-flex items-center justify-center h-11 w-11 rounded-2xl bg-gradient-to-r from-cyan-500 to-emerald-500 text-slate-950 hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    aria-label="Enviar"
+                    title="Enviar"
                   >
                     <Send className="w-5 h-5" />
                   </button>
@@ -250,15 +290,18 @@ export default function VideoPage() {
             </div>
 
             <div className="flex justify-center">
-              <GradientButton
+              <button
                 onClick={handleGenerate}
-                disabled={!file}
-                className="w-full max-w-md"
+                disabled={!file || isGenerating}
+                className="w-full max-w-md inline-flex items-center justify-center gap-2 rounded-2xl px-6 py-3 font-bold text-slate-950 bg-gradient-to-r from-cyan-500 to-emerald-500 shadow-lg shadow-cyan-900/40 hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Sparkles className="w-5 h-5" />
-                Generate Video
-              </GradientButton>
+                {isGenerating ? 'Generando...' : 'Generar video'}
+              </button>
             </div>
+            {errorMessage && (
+              <p className="text-sm text-amber-300 text-center -mt-2">{errorMessage}</p>
+            )}
           </motion.div>
         </AnimatePresence>
       </div>

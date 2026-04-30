@@ -1,0 +1,34 @@
+[Script Info]
+Title: Subtitles
+ScriptType: v4.00+
+WrapStyle: 0
+PlayResX: 1080
+PlayResY: 1920
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Gilroy-Bold,56,&H00FFFFFF,&H00FFFFFF,&H00000000,&H80000000,-1,0,0,0,100,100,0,0,1,4,2,5,10,10,50,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,00:00:00.16,00:00:03.08,Default,,0,0,0,,¿Sabías que la inteligencia artificial está cada vez más presente
+Dialogue: 0,00:00:03.08,00:00:04.00,Default,,0,0,0,,en tu día a día?
+Dialogue: 0,00:00:04.55,00:00:07.67,Default,,0,0,0,,¿Pero, qué significa realmente Inteligencia Artificial?
+Dialogue: 0,00:00:08.24,00:00:11.43,Default,,0,0,0,,Bueno, es el esfuerzo por crear sistemas que imiten habilidades
+Dialogue: 0,00:00:11.43,00:00:14.27,Default,,0,0,0,,humanas como el aprendizaje, la percepción y la toma de
+Dialogue: 0,00:00:14.27,00:00:14.96,Default,,0,0,0,,decisiones.
+Dialogue: 0,00:00:15.51,00:00:18.39,Default,,0,0,0,,Desde el paradigma simbólico que se basa en reglas y
+Dialogue: 0,00:00:18.39,00:00:22.48,Default,,0,0,0,,lógica, hasta el conexionista impulsado por redes neuronales, la IA
+Dialogue: 0,00:00:22.48,00:00:25.03,Default,,0,0,0,,busca soluciones innovadoras para problemas complejos.
+Dialogue: 0,00:00:25.76,00:00:28.01,Default,,0,0,0,,Y aunque suene futurista, ya está aquí.
+Dialogue: 0,00:00:28.01,00:00:31.76,Default,,0,0,0,,Desde asistentes virtuales como Alexa hasta algoritmos que predicen enfermedades.
+Dialogue: 0,00:00:32.57,00:00:34.64,Default,,0,0,0,,Claro, también hay debates éticos.
+Dialogue: 0,00:00:35.21,00:00:37.13,Default,,0,0,0,,¿Quién controla esta tecnología?
+Dialogue: 0,00:00:37.53,00:00:38.81,Default,,0,0,0,,¿Cómo evitar abusos?
+Dialogue: 0,00:00:39.45,00:00:42.60,Default,,0,0,0,,Incluso expertos como Stephen Hawking y Elon Musk han advertido
+Dialogue: 0,00:00:42.60,00:00:43.60,Default,,0,0,0,,sobre sus riesgos.
+Dialogue: 0,00:00:44.32,00:00:47.68,Default,,0,0,0,,¿Entonces, la IA es una herramienta poderosa o una amenaza?
+Dialogue: 0,00:00:48.17,00:00:49.13,Default,,0,0,0,,Tú decides.
+Dialogue: 0,00:00:49.60,00:00:52.00,Default,,0,0,0,,Pero lo que es claro, está cambiando el mundo.
+Dialogue: 0,00:00:52.64,00:00:54.25,Default,,0,0,0,,¿Estás preparado para lo que viene?
