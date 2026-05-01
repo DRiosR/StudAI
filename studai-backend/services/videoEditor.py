@@ -217,13 +217,15 @@ def base_edit_export(video_path: str, audio_path: str, temp_output: str) -> None
     final_clip = video_clip.with_audio(audio)
 
     # Exportar el video final como MP4
+    # OPTIMIZADO PARA BAJA RAM (Render Free Tier)
     final_clip.write_videofile(
         temp_output,              # Ruta de salida
         codec="libx264",          # Codificador de video (H.264)
         audio_codec="aac",       # Codificador de audio (AAC)
-        fps=30,                   # Frames por segundo
+        fps=24,                   # Frames por segundo (reducido de 30 a 24 para evitar Out of Memory)
         preset="ultrafast",       # Preset de codificacion (rapido pero menos comprimido)
-        threads=4,                # Numero de hilos para procesamiento paralelo
+        threads=1,                # Numero de hilos (reducido de 4 a 1 para evitar consumir RAM)
+        logger=None,              # Desactivar logger (previene que imprima 'Menu' en logs y ahorra memoria)
         temp_audiofile="output/temp/temp-audio.m4a",  # Archivo temporal de audio
         remove_temp=True          # Eliminar archivos temporales al finalizar
     )
@@ -585,6 +587,7 @@ def burn_subtitles_ffmpeg(
         "-vf", vf_expr,
         "-c:v", "libx264",
         "-preset", "ultrafast",
+        "-threads", "1",         # Limitar a 1 hilo para evitar sobrecarga de RAM
         "-c:a", "copy",
         output_abs
     ]

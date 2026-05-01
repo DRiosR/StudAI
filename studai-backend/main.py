@@ -25,8 +25,12 @@ from services.genScript import extract_text_from_pdf, generate_short_video_scrip
 from services import genTTS, videoEditor
 from utils.azure_blob import upload_to_blob
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, Response
 from pathlib import Path
+
+# Raiz del backend (funciona en local, Linux y Render; no usar rutas absolutas de otra maquina)
+BACKEND_ROOT = Path(__file__).resolve().parent
+
 app = FastAPI()
 
 # ============================================================================
@@ -34,7 +38,8 @@ app = FastAPI()
 # ============================================================================
 # Almacena el estado de los jobs de generacion de video
 # Usa persistencia en archivo JSON para sobrevivir reinicios del servidor
-JOBS_FILE = "jobs_state.json"
+# JOBS_STATE_PATH: opcional, ruta absoluta al JSON (por defecto junto a main.py)
+JOBS_FILE = os.getenv("JOBS_STATE_PATH", str(BACKEND_ROOT / "jobs_state.json"))
 
 def load_jobs() -> Dict[str, Dict]:
     """Carga los jobs desde el archivo JSON si existe"""
@@ -86,20 +91,28 @@ def update_job(job_id: str, updates: Dict, force_save: bool = False):
     else:
         save_jobs(jobs, force=False)
 
-# Configurar CORS: permite requests desde frontend local y produccion
-# En produccion, agrega tu dominio de Render o Vercel aqui
-allowed_origins = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    # Agrega tu dominio de produccion aqui cuando despliegues:
-    # "https://tu-frontend.onrender.com",
-    # "https://tu-frontend.vercel.app",
+# CORS: desarrollo sigue con *; produccion (Render) usa lista explícita + variables de entorno
+# - CORS_ALLOWED_ORIGINS: URLs separadas por coma (ej: https://mi-app.vercel.app,https://otro.onrender.com)
+# - FRONTEND_URL: una sola URL del frontend (alternativa cómoda)
+_local_cors = ["http://localhost:3000", "http://127.0.0.1:3000"]
+_extra_cors = [
+    o.strip().rstrip("/")
+    for o in os.getenv("CORS_ALLOWED_ORIGINS", "").split(",")
+    if o.strip()
 ]
+_frontend = os.getenv("FRONTEND_URL", "").strip().rstrip("/")
+if _frontend:
+    _extra_cors.append(_frontend)
 
-# Permitir todos los origenes en desarrollo (solo para testing)
-# En produccion, especifica solo los dominios permitidos
 if os.getenv("ENVIRONMENT") != "production":
-    allowed_origins.append("*")
+    allowed_origins = ["*"]
+else:
+    allowed_origins = list(dict.fromkeys(_local_cors + _extra_cors))
+    if len(allowed_origins) <= len(_local_cors) and not _extra_cors:
+        print(
+            "⚠️  ENVIRONMENT=production pero no hay CORS_ALLOWED_ORIGINS ni FRONTEND_URL. "
+            "El frontend en otro dominio será bloqueado por CORS. Define una de esas variables en Render."
+        )
 
 app.add_middleware(
     CORSMiddleware,
@@ -116,12 +129,38 @@ def root():
     return {"service": "StudAI", "status": "ok", "docs": "/docs"}
 
 
+@app.head("/")
+def root_head():
+    """Render (y otros) a veces hacen HEAD / para el health check; sin esto puede salir 405."""
+    return Response(status_code=200)
+
+
 @app.get("/health")
 def health():
     """Health check explicito (configura esto en Render si quieres)."""
     return {"status": "healthy"}
 
-BASE_DIR = Path("/Users/martinortiz/Desktop/Cloud_School/studai-backend/output/videos").resolve()
+
+@app.head("/health")
+def health_head():
+    return Response(status_code=200)
+
+# Videos servidos por /api/local-video/{filename} (OUTPUT_VIDEOS_DIR opcional en Render)
+_videos_dir_env = os.getenv("OUTPUT_VIDEOS_DIR", "").strip()
+BASE_DIR = (
+    Path(_videos_dir_env).resolve()
+    if _videos_dir_env
+    else (BACKEND_ROOT / "output" / "videos").resolve()
+)
+BASE_DIR.mkdir(parents=True, exist_ok=True)
+
+# Directorios de salida usados por el pipeline (rutas relativas al cwd = BACKEND_ROOT en Render)
+for _ensure in (
+    BACKEND_ROOT / "output" / "audio",
+    BACKEND_ROOT / "output" / "temp",
+    BACKEND_ROOT / "photos",
+):
+    _ensure.mkdir(parents=True, exist_ok=True)
 
 # ============================================================================
 # FUNCION PARA OBTENER VIDEO BASE (DESCARGAR DESDE URL SI ES NECESARIO)
