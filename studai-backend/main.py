@@ -109,6 +109,18 @@ app.add_middleware(
     allow_credentials=False,  # set True only if you use cookies/auth
 )
 
+
+@app.get("/")
+def root():
+    """Raiz para health checks de Render y enlaces rapidos a la documentacion."""
+    return {"service": "StudAI", "status": "ok", "docs": "/docs"}
+
+
+@app.get("/health")
+def health():
+    """Health check explicito (configura esto en Render si quieres)."""
+    return {"status": "healthy"}
+
 BASE_DIR = Path("/Users/martinortiz/Desktop/Cloud_School/studai-backend/output/videos").resolve()
 
 # ============================================================================
