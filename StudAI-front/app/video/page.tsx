@@ -68,6 +68,11 @@ export default function VideoPage() {
       setErrorMessage('Primero debes subir un archivo PDF.');
       return;
     }
+    if (!additionalInput.trim()) {
+      alert('Por favor, escribe un poco de contexto o de qué trata tu video en el cuadro de texto antes de generar.');
+      setErrorMessage('Debes ingresar una descripción o contexto en el texto.');
+      return;
+    }
     setErrorMessage('');
     setIsGenerating(true);
     const payload: Input = {
@@ -186,7 +191,7 @@ export default function VideoPage() {
               </div>
               {elapsedSeconds > 20 && (
                 <p className="text-white/60 text-xs mt-3 text-center">
-                  El procesamiento puede tomar entre 1 y 3 minutos. Espera un momento.
+                  El procesamiento puede tomar entre 2 a 5 minutos. Espera un momento.
                 </p>
               )}
             </div>
